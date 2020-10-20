@@ -290,6 +290,7 @@ module.exports = {
 
     // Số điện thoại khách hàng
     const customers = await AppointmentModel.getCustomerByIds(customerIds);
+    console.log("customers -> ", customers);
     const customerPhoneNumbers = await CustomerModel.getPhonesByCustomerIds(customerIds);
     console.log("CustomerPhoneNumbers -> ", customerPhoneNumbers);
 
@@ -333,15 +334,16 @@ module.exports = {
             EditedBy, 
             AppointmentLabelId
           } = appointment;
+          console.log('type CustomerId', typeof(CustomerId));
 
           // Khách hàng, sđt khách hàng
           let customer = customers.find(customer => customer.CustomerId === CustomerId);
           appointment.Customer = customer;
 
           // Số điện thoại
-          const phoneNumbers = customerPhoneNumbers.filter(customer => customer.CustomerId === CustomerId);
+          const phoneNumbers = customerPhoneNumbers.filter(customer => customer.CustomerId === CustomerId) || null;
           const PhoneNumber = [];
-          if(phoneNumbers.length !== 0) {
+          if(phoneNumbers && phoneNumbers.length !== 0) {
               phoneNumbers.map(v => PhoneNumber.push(v.PhoneNumber));
           }
           appointment.Customer.PhoneNumber = [...new Set(PhoneNumber)];
