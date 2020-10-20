@@ -250,8 +250,7 @@ module.exports = {
         AppointmentStatusId,
         EditedBy = null
       } = appointment;
-      console.log('StartAt -> ', StartAt);
-   
+     
       // Ids
       if(AtBranchId && AtBranchId > 0) branchIds.push(AtBranchId);
       if(AppointedTo && AppointedTo > 0) doctorIds.push(AppointedTo);
@@ -259,17 +258,10 @@ module.exports = {
       customerIds.push(CustomerId);    
       appointmentStatusIds.push(AppointmentStatusId);
 
-      console.log('StartAt type -> ', typeof StartAt);
-      console.log('StartAt type -> ', StartAt * 1000);
       const startAtDate = new Date(StartAt * 1000);
-      console.log('startAtDate -> ', startAtDate);
       const startAtHour = startAtDate.getHours();
-      console.log('startAtHour -> ', startAtHour);
       const startHour = startAtDate.getHours();
-      console.log('startHour -> ', startHour);
       const endHour = startAtHour + 1;
-      console.log('endHour -> ', endHour);
-      console.log('--------------------');
 
       hourAppointments[startHour] = {
         StartAtTime: `${startHour}:00`,
@@ -311,7 +303,7 @@ module.exports = {
     let appointmentModeDark = [];
     let appointmentModeLight = [];
     
-    // hourAppointments = hourAppointments.filter(v => v);
+    hourAppointments = hourAppointments.filter(v => v);
     hourAppointments.map(v => {
       const { 
         StartAtIndex, 
@@ -341,32 +333,32 @@ module.exports = {
           } = appointment;
 
           // Khách hàng, sđt khách hàng
-          let customer = customers.find(customer => customer.CustomerId == CustomerId);
+          let customer = customers.find(customer => customer.CustomerId === CustomerId);
           appointment.Customer = customer;
 
           // Số điện thoại
-          const phoneNumbers = customerPhoneNumbers.filter(customer => customer.CustomerId == CustomerId) || null;
+          const phoneNumbers = customerPhoneNumbers.filter(customer => customer.CustomerId === CustomerId);
           const PhoneNumber = [];
-          if(phoneNumbers && phoneNumbers.length !== 0) {
+          if(phoneNumbers.length !== 0) {
               phoneNumbers.map(v => PhoneNumber.push(v.PhoneNumber));
           }
-          if(PhoneNumber && PhoneNumber.length !== 0) appointment.Customer.PhoneNumber = [...new Set(PhoneNumber)];
+          appointment.Customer.PhoneNumber = [...new Set(PhoneNumber)];
           
           // Loại lịch hẹn
-          appointment.AppointmentType = appointmentTypes.find(v => v.AppointmentLabelId == AppointmentLabelId) || {};
+          appointment.AppointmentType = appointmentTypes.find(v => v.AppointmentLabelId === AppointmentLabelId) || {};
       
           // Trạng thái lịch hẹn
-          appointment.AppointmentStatus = appointmentStatus.find(aps => aps.AppointmentStatusId == AppointmentStatusId);
+          appointment.AppointmentStatus = appointmentStatus.find(aps => aps.AppointmentStatusId === AppointmentStatusId);
 
           // Chi nhánh khám
-          appointment.Branch = branchs.find(b => b.BranchId == AtBranchId);
+          appointment.Branch = branchs.find(b => b.BranchId === AtBranchId);
 
           // Bác sỹ điểu trị
-          const doctor = doctors.find(d => d.DoctorId == AppointedTo) || null;
+          const doctor = doctors.find(d => d.DoctorId === AppointedTo) || null;
           appointment.Doctor = doctor;
 
           // Cập nhật lịch hẹn bởi ai
-          let staff = staffs.find(s => s.StaffId == EditedBy);
+          let staff = staffs.find(s => s.StaffId === EditedBy);
           if(EditedBy) appointment.Edited = staff;
 
           // Thời gian đặt lịch hẹn
