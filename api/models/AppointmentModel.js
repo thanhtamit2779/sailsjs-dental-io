@@ -260,6 +260,7 @@ module.exports = {
       appointmentStatusIds.push(AppointmentStatusId);
 
       console.log('StartAt -> ', StartAt);
+      console.log('StartAt type -> ', StartAt * 1000);
       const startAtDate = new Date(StartAt * 1000);
       console.log('startAtDate -> ', startAtDate);
       const startAtHour = startAtDate.getHours();
