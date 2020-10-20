@@ -121,7 +121,7 @@ module.exports = {
       toDateTimestamp = ~~((toDate.getTime())/1000);
     }
 
-    let sql = `"a"."StartAt", 
+    let sql = `SELECT "a"."StartAt", 
     "a"."EndAt", 
     "a"."AppointmentId", 
     "a"."AppointmentStatusId", 
@@ -183,9 +183,9 @@ module.exports = {
     }
 
     sql += ` ORDER BY "a"."StartAt" ASC`;
-    console.log("sql -> ", sql);
     const execute = await sails.sendNativeQuery(sql);
     const appointments = execute.rows || [];
+    console.log("appointments -> ", appointments);
     return appointments;
   },
 
