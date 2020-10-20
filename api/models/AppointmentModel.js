@@ -121,37 +121,37 @@ module.exports = {
       toDateTimestamp = ~~((toDate.getTime())/1000);
     }
 
-    let sql = `SELECT 
-                  a.StartAt, 
-                  a.EndAt, 
-                  a.AppointmentId, 
-                  a.AppointmentStatusId, 
-                  a.AppointedTo, 
-                  a.CreatedBy, 
-                  a.CreatedAt, 
-                  a.EditedBy, 
-                  a.EditedAt, 
-                  a.AtBranchId, 
-                  a.AppointmentStatusNote, 
-                  a.Note,
-                  a.CustomerId,
-                  a.AppointmentLabelId        
-                FROM appointment as a
-                WHERE a.StartAt >= ${fromDateTimestamp} AND a.StartAt <= ${toDateTimestamp}`;
+    let sql = `"a"."StartAt", 
+    "a"."EndAt", 
+    "a"."AppointmentId", 
+    "a"."AppointmentStatusId", 
+    "a"."AppointedTo", 
+    "a"."CreatedBy", 
+    "a"."CreatedAt", 
+    "a"."EditedBy", 
+    "a"."EditedAt", 
+    "a"."AtBranchId", 
+    "a"."AppointmentStatusNote", 
+    "a"."Note", 
+    "a"."CustomerId", 
+    "a"."AppointmentLabelId"         
+                FROM "public"."appointment" as "a"
+                WHERE "a"."StartAt" >= ${fromDateTimestamp} AND "a"."StartAt" <= ${toDateTimestamp}`;
+
     if(BranchId > 0) {
-      sql += ` AND a.AtBranchId = ${BranchId}`;
+      sql += ` AND "a"."AtBranchId" = ${BranchId}`;
     }
 
     if(DoctorId > 0) {
-      sql += ` AND a.AppointedTo = ${DoctorId}`;
+      sql += ` AND "a"."AppointedTo" = ${DoctorId}`;
     }
 
     if(AppointmentLabelId > 0) {
-      sql += ` AND a.AppointmentLabelId=${AppointmentLabelId}`;
+      sql += ` AND "a"."AppointmentLabelId" = ${AppointmentLabelId}`;
     }
 
     if(AppointmentStatusIds.length !== 0) {
-      sql += ` AND AppointmentStatusId IN (${ AppointmentStatusIds.join() })`;
+      sql += ` AND "a"."AppointmentStatusId" IN (${ AppointmentStatusIds.join() })`;
     }
 
     if(Keyword.length > 2) {
@@ -169,21 +169,21 @@ module.exports = {
 
       switch(searchBy) {
         case 2:
-          sql += ` AND a.CustomerId IN (SELECT CustomerId FROM customer WHERE CustomerCode LIKE '%${Keyword}%')`;
+          sql += ` AND "a"."CustomerId" IN (SELECT "CustomerId" FROM "public"."customer" WHERE "CustomerCode" LIKE '%${Keyword}%')`;
           break;
 
         case 3:
-          sql += ` AND a.CustomerId IN (SELECT CustomerId FROM customerphonenumber WHERE PhoneNumber LIKE '%${Keyword}%')`;
+          sql += ` AND "a"."CustomerId" IN (SELECT "CustomerId" FROM "public"."customerphonenumber" WHERE "PhoneNumber" LIKE '%${Keyword}%')`;
           break;
 
         default:
-          sql += ` AND a.CustomerId IN (SELECT CustomerId FROM customer WHERE FullName LIKE '%${Keyword}%')`;
+          sql += ` AND "a"."CustomerId" IN (SELECT "CustomerId" FROM "public"."customer" WHERE "FullName" LIKE '%${Keyword}%')`;
           break;
       }
     }
 
-    sql += ` ORDER BY a.StartAt ASC`;
-    console.log('sql -> ', sql);
+    sql += ` ORDER BY "a"."StartAt" ASC`;
+    console.log("sql -> ", sql);
     const execute = await sails.sendNativeQuery(sql);
     const appointments = execute.rows || [];
     return appointments;
