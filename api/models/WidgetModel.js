@@ -88,21 +88,6 @@ module.exports = {
     return doctors;
   },
 
-  getStaffsByIds: async (staffIds) => {
-    if(staffIds.length === 0) return [];
-    const whereIn = staffIds.join();
-    const sql = `SELECT
-                  "StaffId",
-                  "FullName",
-                  "Photo",
-                  "GenderId" as "Gender"
-                FROM "public"."staff"
-                WHERE "public"."StaffId" IN (${whereIn})`;
-    const execute = await sails.sendNativeQuery(sql);
-    const result = execute.rows || [];
-    return result;
-  },
-
   getCustomerTypes: async () => {
     const sql = `SELECT CustomerTypeId, Name FROM customertype WHERE State=1`;
     const execute = await sails.sendNativeQuery(sql);
@@ -114,12 +99,12 @@ module.exports = {
     if(staffIds.length === 0) return [];
     const whereIn = staffIds.join();
     const sql = `SELECT
-                  StaffId,
-                  FullName,
-                  Photo,
-                  GenderId as Gender
-                FROM staff
-                WHERE StaffId IN (${whereIn})`;
+                  "StaffId",
+                  "FullName",
+                  "Photo",
+                  "GenderId" as "Gender"
+                FROM "public"."staff"
+                WHERE "StaffId" IN (${whereIn})`;
     const executeStaff = await sails.sendNativeQuery(sql);
     const staffs = executeStaff.rows || [];
     staffs.length !== 0 && staffs.map(staff => {
