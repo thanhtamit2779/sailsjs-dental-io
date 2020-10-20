@@ -229,6 +229,9 @@ module.exports = {
   getAppointmentsInDay: async function (req, res) {
     const appointments = await AppointmentModel._getAppointments(req);
     if(appointments.length === 0) return {};
+
+    const nowDate = new Date();
+    console.log('getHours -> ', nowDate.getHours());
     
     // Ids
     const customerIds = [];
