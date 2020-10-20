@@ -138,7 +138,6 @@ module.exports = {
                   a.AppointmentLabelId        
                 FROM appointment as a
                 WHERE a.StartAt >= ${fromDateTimestamp} AND a.StartAt <= ${toDateTimestamp}`;
-
     if(BranchId > 0) {
       sql += ` AND a.AtBranchId = ${BranchId}`;
     }
@@ -184,6 +183,7 @@ module.exports = {
     }
 
     sql += ` ORDER BY a.StartAt ASC`;
+    console.log('sql -> ', sql);
     const execute = await sails.sendNativeQuery(sql);
     const appointments = execute.rows || [];
     return appointments;
