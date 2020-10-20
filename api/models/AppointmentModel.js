@@ -337,32 +337,32 @@ module.exports = {
           console.log('type CustomerId', typeof(CustomerId));
 
           // Khách hàng, sđt khách hàng
-          let customer = customers.find(customer => customer.CustomerId === CustomerId);
+          let customer = customers.find(customer => customer.CustomerId == CustomerId);
           appointment.Customer = customer;
 
           // Số điện thoại
-          const phoneNumbers = customerPhoneNumbers.filter(customer => customer.CustomerId === CustomerId) || null;
+          const phoneNumbers = customerPhoneNumbers.filter(customer => customer.CustomerId == CustomerId) || null;
           const PhoneNumber = [];
           if(phoneNumbers && phoneNumbers.length !== 0) {
               phoneNumbers.map(v => PhoneNumber.push(v.PhoneNumber));
           }
-          appointment.Customer.PhoneNumber = [...new Set(PhoneNumber)];
+          if(PhoneNumber && PhoneNumber.length !== 0) appointment.Customer.PhoneNumber = [...new Set(PhoneNumber)];
           
           // Loại lịch hẹn
-          appointment.AppointmentType = appointmentTypes.find(v => v.AppointmentLabelId === AppointmentLabelId) || {};
+          appointment.AppointmentType = appointmentTypes.find(v => v.AppointmentLabelId == AppointmentLabelId) || {};
       
           // Trạng thái lịch hẹn
-          appointment.AppointmentStatus = appointmentStatus.find(aps => aps.AppointmentStatusId === AppointmentStatusId);
+          appointment.AppointmentStatus = appointmentStatus.find(aps => aps.AppointmentStatusId == AppointmentStatusId);
 
           // Chi nhánh khám
-          appointment.Branch = branchs.find(b => b.BranchId === AtBranchId);
+          appointment.Branch = branchs.find(b => b.BranchId == AtBranchId);
 
           // Bác sỹ điểu trị
-          const doctor = doctors.find(d => d.DoctorId === AppointedTo) || null;
+          const doctor = doctors.find(d => d.DoctorId == AppointedTo) || null;
           appointment.Doctor = doctor;
 
           // Cập nhật lịch hẹn bởi ai
-          let staff = staffs.find(s => s.StaffId === EditedBy);
+          let staff = staffs.find(s => s.StaffId == EditedBy);
           if(EditedBy) appointment.Edited = staff;
 
           // Thời gian đặt lịch hẹn
