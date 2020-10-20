@@ -287,7 +287,6 @@ module.exports = {
     // Danh sách nhân viên
     staffIds = [...new Set(staffIds) ];
     const staffs = await WidgetModel.getStaffsByIds(staffIds);
-    console.log("staffs -> ", staffs);
 
     // Trạng thái lịch hẹn
     appointmentStatusIds = [...new Set(appointmentStatusIds) ];
@@ -295,9 +294,7 @@ module.exports = {
 
     // Số điện thoại khách hàng
     const customers = await AppointmentModel.getCustomerByIds(customerIds);
-    console.log("customers -> ", customers);
     const customerPhoneNumbers = await CustomerModel.getPhonesByCustomerIds(customerIds);
-    console.log("CustomerPhoneNumbers -> ", customerPhoneNumbers);
 
     // Loại lịch hẹn: Tư vấn, điều trị, tái khám
     const appointmentTypes = await WidgetModel.getAppointmentTypes();
@@ -339,7 +336,6 @@ module.exports = {
             EditedBy, 
             AppointmentLabelId
           } = appointment;
-          console.log('type CustomerId', typeof(CustomerId));
 
           // Khách hàng, sđt khách hàng
           let customer = customers.find(customer => customer.CustomerId == CustomerId);
