@@ -22,7 +22,7 @@
 module.exports = {
 
   //explicitHost: 'http://ec2-34-216-18-28.us-west-2.compute.amazonaws.com',
-  hostname: 'https://sailsjs-dental-io.herokuapp.com/',
+  hostname: 'https://sailsjs-dental-io.herokuapp.com',
 
   /**************************************************************************
   *                                                                         *
@@ -374,7 +374,7 @@ module.exports = {
   *                                                                         *
   ***************************************************************************/
   custom: {
-    baseUrl: 'https://sailsjs-dental-io.herokuapp.com/',
+    baseUrl: 'https://sailsjs-dental-io.herokuapp.com',
     //internalEmailAddress: 'support@example.com',
 
     // sendgridSecret: 'SG.fake.3e0Bn0qSQVnwb1E4qNPz9JZP5vLZYqjh7sn8S93oSHU',
@@ -391,7 +391,4 @@ module.exports = {
     //--------------------------------------------------------------------------
 
   },
-
-
-
 };
