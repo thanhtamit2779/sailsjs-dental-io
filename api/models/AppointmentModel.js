@@ -232,6 +232,7 @@ module.exports = {
 
     const nowDate = new Date();
     console.log('getHours -> ', nowDate.getHours());
+    console.log('------------');
     
     // Ids
     const customerIds = [];
@@ -279,7 +280,7 @@ module.exports = {
         EndAtIndex: endHour
       };
     });
-    console.log('hourAppointments -> ', hourAppointments);
+    // console.log('hourAppointments -> ', hourAppointments);
   
     // Danh sách bác sỹ
     doctorIds = [...new Set(doctorIds) ];
