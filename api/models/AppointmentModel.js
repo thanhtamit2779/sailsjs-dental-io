@@ -274,7 +274,6 @@ module.exports = {
     // Danh sách bác sỹ
     doctorIds = [...new Set(doctorIds) ];
     const doctors = await AppointmentModel.getDoctorsByIds(doctorIds);
-    console.log("doctors -> ", doctors);
     
     // Danh sách chi nhánh
     branchIds = [...new Set(branchIds) ];
@@ -515,7 +514,7 @@ module.exports = {
                   "Name"
                 FROM "public"."branch" 
                 WHERE "BranchId" IN (${whereIn})
-                ORDER BY Name ASC`;
+                ORDER BY "Name" ASC`;
     const execute = await sails.sendNativeQuery(sql);
     const result = execute.rows || [];
     return result;
