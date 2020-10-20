@@ -278,7 +278,6 @@ module.exports = {
     // Danh sách chi nhánh
     branchIds = [...new Set(branchIds) ];
     const branchs = await AppointmentModel.getBranchsByIds(branchIds);
-    console.log("branchs -> ", branchs);
 
     // Danh sách nhân viên
     staffIds = [...new Set(staffIds) ];

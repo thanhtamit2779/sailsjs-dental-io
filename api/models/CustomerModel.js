@@ -492,7 +492,7 @@ module.exports = {
     if(CustomerIds.length === 0) return [];
 
     const whereIn = CustomerIds.join();
-    const sql = `SELECT PhoneNumber, CustomerId FROM customerphonenumber WHERE CustomerId IN (${whereIn}) ORDER BY ExpiredAt ASC`;
+    const sql = `SELECT "PhoneNumber", "CustomerId" FROM "public"."customerphonenumber" WHERE "CustomerId" IN (${whereIn}) ORDER BY "ExpiredAt" ASC`;
     const execute = await sails.sendNativeQuery(sql);
     const result = execute.rows || [];
     return result;
@@ -502,7 +502,7 @@ module.exports = {
     if(CustomerIds.length === 0) return [];
 
     const whereIn = CustomerIds.join();
-    const sql = `SELECT * FROM customeremail WHERE CustomerId IN (${whereIn})`;
+    const sql = `SELECT * FROM "public"."customeremail" WHERE "CustomerId" IN (${whereIn})`;
     const execute = await sails.sendNativeQuery(sql);
     const result = execute.rows || [];
     return result;

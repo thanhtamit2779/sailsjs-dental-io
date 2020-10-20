@@ -35,10 +35,10 @@ module.exports = {
 
   getAppointmentTypes: async () => {
     const sql = `SELECT 
-                  AppointmentLabelId,
-                  Name
-                FROM appointmentlabel 
-                ORDER BY Name ASC`;
+                  "AppointmentLabelId",
+                  "Name"
+                FROM "public"."appointmentlabel" 
+                ORDER BY "Name" ASC`;
     const execute = await sails.sendNativeQuery(sql);
     const result = execute.rows || [];
     return result;
@@ -58,14 +58,14 @@ module.exports = {
 
   getDoctors: async () => {
     const sql = `SELECT 
-                  d.DoctorId,
-                  s.StaffId,
-                  s.FullName,
-                  s.Photo,
-                  s.GenderId as Gender
-                FROM doctor as d
-                LEFT JOIN staff as s ON s.StaffId = d.StaffId
-                ORDER BY s.FullName ASC`;
+                  "d"."DoctorId",
+                  "s"."StaffId",
+                  "s"."FullName",
+                  "s"."Photo",
+                  "s"."GenderId" as "Gender"
+                FROM "public"."doctor" as "d"
+                LEFT JOIN "public"."staff" as "s" ON "s"."StaffId" = "d"."StaffId"
+                ORDER BY "s"."FullName" ASC`;
     const executeDoctor = await sails.sendNativeQuery(sql);
     const doctors = executeDoctor.rows || [];
 
