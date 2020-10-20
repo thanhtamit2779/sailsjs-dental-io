@@ -185,7 +185,6 @@ module.exports = {
     sql += ` ORDER BY "a"."StartAt" ASC`;
     const execute = await sails.sendNativeQuery(sql);
     const appointments = execute.rows || [];
-    console.log("appointments -> ", appointments);
     return appointments;
   },
 
@@ -275,18 +274,22 @@ module.exports = {
     // Danh sách bác sỹ
     doctorIds = [...new Set(doctorIds) ];
     const doctors = await AppointmentModel.getDoctorsByIds(doctorIds);
+    console.log("doctors -> ", doctors);
     
     // Danh sách chi nhánh
     branchIds = [...new Set(branchIds) ];
     const branchs = await AppointmentModel.getBranchsByIds(branchIds);
+    console.log("branchs -> ", branchs);
 
     // Danh sách nhân viên
     staffIds = [...new Set(staffIds) ];
     const staffs = await WidgetModel.getStaffsByIds(staffIds);
+    console.log("staffs -> ", staffs);
 
     // Trạng thái lịch hẹn
     appointmentStatusIds = [...new Set(appointmentStatusIds) ];
     const appointmentStatus = await WidgetModel.getAppointmentStatus();
+    console.log("appointmentStatus -> ", appointmentStatus);
 
     // Số điện thoại khách hàng
     const customers = await AppointmentModel.getCustomerByIds(customerIds);
@@ -460,16 +463,16 @@ module.exports = {
     if(customerIds.length === 0) return [];
     const whereIn = customerIds.join();
     const sql = `SELECT 
-                  CustomerId,
-                  FullName, 
-                  Gender, 
-                  Birthday,
-                  Address,
-                  Photo,
-                  CustomerCode,
-                  PercentProfile
-                FROM customer
-                WHERE CustomerId IN (${whereIn})`;
+                  "CustomerId",
+                  "FullName", 
+                  "Gender", 
+                  "Birthday",
+                  "Address",
+                  "Photo",
+                  "CustomerCode",
+                  "PercentProfile"
+                FROM "public"."customer"
+                WHERE "CustomerId" IN (${whereIn})`;
 
     const executeCustomers = await sails.sendNativeQuery(sql);
     const customers = executeCustomers.rows || [];
@@ -493,10 +496,10 @@ module.exports = {
     if(appointmentIds.length === 0) return [];
     const whereIn = appointmentIds.join();
     const sql = `SELECT 
-                  AppointmentLabelId,
-                  AppointmentId
-                FROM appointmentappointmentlabel
-                WHERE AppointmentId IN (${whereIn})`;
+                  "AppointmentLabelId",
+                  "AppointmentId"
+                FROM "public"."appointmentappointmentlabel"
+                WHERE "AppointmentId" IN (${whereIn})`;
 
     const execute = await sails.sendNativeQuery(sql);
     const result = execute.rows || [];
@@ -507,11 +510,11 @@ module.exports = {
     if(branchIds.length === 0) return [];
     const whereIn = branchIds.join();
     const sql = `SELECT 
-                  BranchId,
-                  BranchCode,
-                  Name
-                FROM branch 
-                WHERE BranchId IN (${whereIn})
+                  "BranchId",
+                  "BranchCode",
+                  "Name"
+                FROM "public"."branch" 
+                WHERE "BranchId" IN (${whereIn})
                 ORDER BY Name ASC`;
     const execute = await sails.sendNativeQuery(sql);
     const result = execute.rows || [];
@@ -522,14 +525,14 @@ module.exports = {
     if(doctorIds.length === 0) return [];
     const whereIn = doctorIds.join();
     const sql = `SELECT 
-                  d.DoctorId,
-                  s.StaffId,
-                  s.FullName,
-                  s.Photo,
-                  s.GenderId as Gender
-                FROM doctor as d
-                LEFT JOIN staff as s ON s.StaffId = d.StaffId 
-                WHERE d.DoctorId IN (${whereIn})`;
+                  "d"."DoctorId",
+                  "s"."StaffId",
+                  "s"."FullName",
+                  "s"."Photo",
+                  "s"."GenderId" as "Gender"
+                FROM "public"."doctor" as "d"
+                LEFT JOIN "public"."staff" as "s" ON "s"."StaffId" = "d"."StaffId" 
+                WHERE "d"."DoctorId" IN (${whereIn})`;
     const executeDoctor = await sails.sendNativeQuery(sql);
     const doctors = executeDoctor.rows || [];
     doctors.length !== 0 && doctors.map(doctor => {

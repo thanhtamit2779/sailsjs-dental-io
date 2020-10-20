@@ -12,13 +12,12 @@ module.exports = {
 
   getAppointmentStatus: async () => {
     const sql = `SELECT 
-                  aps.AppointmentStatusId,
-                  aps.Name, 
-                  aps.ConfirmMessage,
-                  aps.Label
-                FROM appointmentstatus as aps
-                ORDER BY aps.Name ASC
-                `;
+                  "aps"."AppointmentStatusId",
+                  "aps"."Name", 
+                  "aps"."ConfirmMessage",
+                  "aps"."Label"
+                FROM "public"."appointmentstatus" as "aps"
+                ORDER BY "aps"."Name" ASC`;
     const execute = await sails.sendNativeQuery(sql);
     const result = execute.rows || [];
     return result;
@@ -27,7 +26,7 @@ module.exports = {
   getAppointmentStatusNotes: async (AppointmentStatusId = null) => {
     if(!AppointmentStatusId || AppointmentStatusId < 1) return [];
 
-    const sql = `SELECT * FROM appointmentstatusnote WHERE AppointmentStatusId = ${AppointmentStatusId}`;
+    const sql = `SELECT * FROM "public"."appointmentstatusnote" WHERE "AppointmentStatusId" = ${AppointmentStatusId}`;
     const execute = await sails.sendNativeQuery(sql);
     const result = execute.rows || [];
     
@@ -47,10 +46,10 @@ module.exports = {
 
   getBranchs: async () => {
     const sql = `SELECT 
-                  BranchId,
-                  BranchCode,
-                  Name
-                FROM branch 
+                  "BranchId",
+                  "BranchCode",
+                  "Name"
+                FROM "public"."branch" 
                 ORDER BY Name ASC`;
     const execute = await sails.sendNativeQuery(sql);
     const result = execute.rows || [];
@@ -93,12 +92,12 @@ module.exports = {
     if(staffIds.length === 0) return [];
     const whereIn = staffIds.join();
     const sql = `SELECT
-                  StaffId,
-                  FullName,
-                  Photo,
-                  GenderId as Gender
-                FROM staff
-                WHERE StaffId IN (${whereIn})`;
+                  "StaffId",
+                  "FullName",
+                  "Photo",
+                  "GenderId" as "Gender"
+                FROM "public"."staff"
+                WHERE "public"."StaffId" IN (${whereIn})`;
     const execute = await sails.sendNativeQuery(sql);
     const result = execute.rows || [];
     return result;
