@@ -287,11 +287,11 @@ module.exports = {
     // Trạng thái lịch hẹn
     appointmentStatusIds = [...new Set(appointmentStatusIds) ];
     const appointmentStatus = await WidgetModel.getAppointmentStatus();
-    console.log("appointmentStatus -> ", appointmentStatus);
 
     // Số điện thoại khách hàng
     const customers = await AppointmentModel.getCustomerByIds(customerIds);
     const customerPhoneNumbers = await CustomerModel.getPhonesByCustomerIds(customerIds);
+    console.log("CustomerPhoneNumbers -> ", customerPhoneNumbers);
 
     // Loại lịch hẹn: Tư vấn, điều trị, tái khám
     const appointmentTypes = await WidgetModel.getAppointmentTypes();
