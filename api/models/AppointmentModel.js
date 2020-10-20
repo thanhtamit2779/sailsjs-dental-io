@@ -259,6 +259,7 @@ module.exports = {
       customerIds.push(CustomerId);    
       appointmentStatusIds.push(AppointmentStatusId);
 
+      console.log('StartAt -> ', StartAt);
       const startAtDate = new Date(StartAt * 1000);
       console.log('startAtDate -> ', startAtDate);
       const startAtHour = startAtDate.getHours();
@@ -267,6 +268,7 @@ module.exports = {
       console.log('startHour -> ', startHour);
       const endHour = startAtHour + 1;
       console.log('endHour -> ', endHour);
+      console.log('--------------------');
 
       hourAppointments[startHour] = {
         StartAtTime: `${startHour}:00`,
@@ -308,7 +310,7 @@ module.exports = {
     let appointmentModeDark = [];
     let appointmentModeLight = [];
     
-    hourAppointments = hourAppointments.filter(v => v);
+    // hourAppointments = hourAppointments.filter(v => v);
     hourAppointments.map(v => {
       const { 
         StartAtIndex, 
