@@ -250,7 +250,8 @@ module.exports = {
         AppointmentStatusId,
         EditedBy = null
       } = appointment;
-
+      console.log('StartAt -> ', StartAt);
+   
       // Ids
       if(AtBranchId && AtBranchId > 0) branchIds.push(AtBranchId);
       if(AppointedTo && AppointedTo > 0) doctorIds.push(AppointedTo);
@@ -259,9 +260,13 @@ module.exports = {
       appointmentStatusIds.push(AppointmentStatusId);
 
       const startAtDate = new Date(StartAt * 1000);
+      console.log('startAtDate -> ', startAtDate);
       const startAtHour = startAtDate.getHours();
+      console.log('startAtHour -> ', startAtHour);
       const startHour = startAtDate.getHours();
+      console.log('startHour -> ', startHour);
       const endHour = startAtHour + 1;
+      console.log('endHour -> ', endHour);
 
       hourAppointments[startHour] = {
         StartAtTime: `${startHour}:00`,
