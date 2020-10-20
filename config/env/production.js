@@ -21,7 +21,7 @@
 
 module.exports = {
 
-  //explicitHost: 'http://ec2-34-216-18-28.us-west-2.compute.amazonaws.com',
+  explicitHost: 'https://sailsjs-dental-io.herokuapp.com',
   hostname: 'https://sailsjs-dental-io.herokuapp.com',
 
   /**************************************************************************
