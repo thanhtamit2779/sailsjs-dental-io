@@ -150,7 +150,7 @@ module.exports = {
                         "c"."Address",
                         "c"."UpdatedAt",
                         "c"."UpdatedBy",
-                        (SELECT COUNT(AppointmentId) FROM "public"."appointment" WHERE "CustomerId" = "c"."CustomerId") AS "TotalAppointment"`;
+                        (SELECT COUNT("AppointmentId") FROM "public"."appointment" WHERE "CustomerId" = "c"."CustomerId") AS "TotalAppointment"`;
     let sql = `FROM "public"."customer" as c WHERE 1 = 1`;
 
     if(Keyword.length > 2) {
