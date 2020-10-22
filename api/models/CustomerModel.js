@@ -265,7 +265,6 @@ module.exports = {
 
     const executeTotal = await sails.sendNativeQuery(sqlTotalQuery);
     console.log('executeTotal -> ', executeTotal);
-    console.log('customers -> ', customers);
     const totalCustomer = executeTotal.rows || [];
     const Total = totalCustomer[0].TotalCustomer || 0;
     const customer = {
@@ -277,7 +276,7 @@ module.exports = {
         PerPage
       }
     };
-    console.log('customer -> ', customer);
+    // console.log('customer -> ', customer);
     return customer;
   },
 
