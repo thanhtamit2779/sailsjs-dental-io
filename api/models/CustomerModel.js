@@ -327,7 +327,7 @@ module.exports = {
     const Customer = await CustomerModel.getCustomer(CustomerId);
 
     // Danh mục ghi chú
-    const executeNoteCategory = await sails.sendNativeQuery(`SELECT CustomerNoteCategoryId, Name FROM customernotecategory WHERE State = 1`);
+    const executeNoteCategory = await sails.sendNativeQuery(`SELECT "CustomerNoteCategoryId", "Name" FROM "public"."customernotecategory" WHERE "State" = 1`);
     const customerNoteCategories = executeNoteCategory.rows || [];
 
     // Ghi chú
@@ -335,6 +335,7 @@ module.exports = {
     const CustomerNotes = await CustomerNoteModel.find({
       where: { CustomerId }
     }).sort([{ AddedAt: 'DESC' }]);
+    console.log('CustomerNotes -> ', CustomerNotes.length);
 
     CustomerNotes.length !== 0 && CustomerNotes.map(v => {
       const { 
@@ -349,6 +350,7 @@ module.exports = {
 
     staffIds = [... new Set(staffIds) ];
     const staffs = await WidgetModel.getStaffsByIds(staffIds);
+    console.log('staffs -> ', staffs.length);
     
     CustomerNotes.length !== 0 && CustomerNotes.map(v => {
       const { 
@@ -362,9 +364,11 @@ module.exports = {
 
     // Lịch hẹn
     const Appointments = await CustomerModel.getAppointmentsByCustomerId(CustomerId);
+    console.log('Appointments -> ', Appointments.length);
 
     // Phản hồi
     const Complaints = await CustomerModel.getComplaintsCustomerId(CustomerId);
+    console.log('Complaints -> ', Complaints.length);
 
     // Mối quan hệ
     //const CustomerRelationship = await CustomerModel.getCustomerRelationshipByCustomerId(CustomerId);
