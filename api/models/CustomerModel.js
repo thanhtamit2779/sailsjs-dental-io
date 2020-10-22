@@ -131,7 +131,10 @@ module.exports = {
       Page = 1,
       PerPage = 10 
     } = request;
-    const Offset = (Page - 1) * PerPage;
+
+    const perPage = parseInt(PerPage);
+    const page = parseInt(Page);
+    const Offset = (parseInt(page) - 1) * parseInt(perPage);
 
     const sqlTotal =  `SELECT "c"."CustomerId" as "TotalCustomer"`;
     const sqlSelect = `SELECT 
@@ -270,9 +273,9 @@ module.exports = {
       Customers: customers,
       Pagination: {
         Total,
-        TotalPage: ~~(Total/PerPage),
-        Page,
-        PerPage
+        TotalPage: Math.ceil(Total/perPage),
+        Page: page,
+        PerPage: perPage
       }
     };
     return customer;
