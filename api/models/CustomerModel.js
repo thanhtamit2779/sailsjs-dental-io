@@ -287,7 +287,7 @@ module.exports = {
     const customer = await CustomerModel.findOne({
       where: { id: CustomerId }
     });
-    if(!customer.id) return null;
+    if(!customer && !customer.id) return null;
 
     customer.CustomerId = customer.id;
     delete customer.id;
@@ -325,7 +325,6 @@ module.exports = {
 
     // Thông tin khách hàng
     const Customer = await CustomerModel.getCustomer(CustomerId);
-    console.log('Customer -> ', Customer);
 
     // Danh mục ghi chú
     const executeNoteCategory = await sails.sendNativeQuery(`SELECT "CustomerNoteCategoryId", "Name" FROM "public"."customernotecategory" WHERE "State" = 1`);
@@ -336,7 +335,6 @@ module.exports = {
     const CustomerNotes = await CustomerNoteModel.find({
       where: { CustomerId }
     }).sort([{ AddedAt: 'DESC' }]);
-    console.log('CustomerNotes -> ', CustomerNotes);
 
     CustomerNotes.length !== 0 && CustomerNotes.map(v => {
       const { 
@@ -351,25 +349,22 @@ module.exports = {
 
     staffIds = [... new Set(staffIds) ];
     const staffs = await WidgetModel.getStaffsByIds(staffIds);
-    console.log('staffs -> ', staffs.length);
     
     CustomerNotes.length !== 0 && CustomerNotes.map(v => {
       const { 
         CustomerNoteCategoryId,
         AddedBy 
       } = v;
-      v.CustomerNoteCategory = customerNoteCategories.find(v => v.CustomerNoteCategoryId === CustomerNoteCategoryId) || null;
+      v.CustomerNoteCategory = customerNoteCategories.find(v => v.CustomerNoteCategoryId == CustomerNoteCategoryId) || null;
       v.AddedBy = staffs.find(v => v.StaffId === AddedBy) || null;
       return v;
     });
 
     // Lịch hẹn
     const Appointments = await CustomerModel.getAppointmentsByCustomerId(CustomerId);
-    console.log('Appointments -> ',Appointments);
 
     // Phản hồi
     const Complaints = await CustomerModel.getComplaintsCustomerId(CustomerId);
-    console.log('Complaints -> ', Complaints);
 
     // Mối quan hệ
     //const CustomerRelationship = await CustomerModel.getCustomerRelationshipByCustomerId(CustomerId);
@@ -444,12 +439,12 @@ module.exports = {
         AppointmentStatusId
       } = v;
 
-      v.Editor = staffs.find(v => v.StaffId === EditedBy) || null;
-      v.Creator = staffs.find(v => v.StaffId === CreatedBy) || null;
-      v.Doctor = doctors.find(v => v.DoctorId === AppointedTo) || null;
-      v.Branch = branchs.find(v => v.BranchId === AtBranchId) || null;
-      v.AppointmentType = appointmentTypes.find(v => v.AppointmentLabelId === AppointmentLabelId) || null;
-      v.AppointmentStatus = appointmentStatus.find(aps => aps.AppointmentStatusId === AppointmentStatusId) || null;
+      v.Editor = staffs.find(v => v.StaffId == EditedBy) || null;
+      v.Creator = staffs.find(v => v.StaffId == CreatedBy) || null;
+      v.Doctor = doctors.find(v => v.DoctorId == AppointedTo) || null;
+      v.Branch = branchs.find(v => v.BranchId == AtBranchId) || null;
+      v.AppointmentType = appointmentTypes.find(v => v.AppointmentLabelId == AppointmentLabelId) || null;
+      v.AppointmentStatus = appointmentStatus.find(aps => aps.AppointmentStatusId == AppointmentStatusId) || null;
 
       return v;
     });
