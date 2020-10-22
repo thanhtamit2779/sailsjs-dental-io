@@ -204,7 +204,6 @@ module.exports = {
 
     const sqlTotalQuery = `${sqlTotal} ${sql}`;
     const sqlQuery = `${sqlSelect} ${sql} LIMIT ${PerPage} OFFSET ${Offset}`;
-    console.log('sqlQuery -> ', sqlQuery);
     const execute = await sails.sendNativeQuery(sqlQuery);
     const customers = execute.rows || [];
     if(customers.length === 0) return [];
@@ -235,12 +234,20 @@ module.exports = {
     WardIds = [...new Set(WardIds)]; 
 
     const customerTypes = await WidgetModel.getCustomerTypes();
+    console.log('customerTypes -> ', customerTypes);
     const customerPhones = await CustomerModel.getPhonesByCustomerIds(customerIds);
+    console.log('customerPhones -> ', customerPhones);
     const customerEmails = await CustomerModel.getEmailsByCustomerIds(customerIds);
+    console.log('customerEmails -> ', customerEmails);
     const staffs = await WidgetModel.getStaffsByIds(staffIds);
+    console.log('staffs -> ', staffs);
     const provinces = await WidgetModel.getProvincesByIds(ProvinceIds);
+    console.log('provinces -> ', provinces);
     const districts = await WidgetModel.getDistrictsByIds(DistrictIds);
+    console.log('districts -> ', districts);
     const wards = await WidgetModel.getWardsByIds(WardIds);
+    console.log('wards -> ', wards);
+    return [];
   
     if(customers.map(v => {
       const { 
@@ -327,10 +334,6 @@ module.exports = {
     // Danh mục ghi chú
     const executeNoteCategory = await sails.sendNativeQuery(`SELECT CustomerNoteCategoryId, Name FROM customernotecategory WHERE State = 1`);
     const customerNoteCategories = executeNoteCategory.rows || [];
-
-    // Nhóm ghi chú
-    // const executeComplaintAboutReason = await sails.sendNativeQuery(`SELECT ComplaintAboutReasonId, ComplaintReasonGroupId, Reason FROM complaintaboutreason WHERE State = 1`);
-    // const complaintAboutReasons = executeComplaintAboutReason.rows || [];
 
     // Ghi chú
     let staffIds = [];
