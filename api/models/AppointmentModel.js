@@ -273,7 +273,7 @@ module.exports = {
       // console.log('endHour -> ', endHour);
       // console.log('---------');
 
-      hourAppointments[startHour] = {
+      if(startHour) hourAppointments[startHour] = {
         StartAtTime: `${startHour}:00`,
         EndAtTime: `${endHour}:00`,
         StartAtIndex: startHour,
@@ -400,8 +400,8 @@ module.exports = {
           }
 
           // Total appointment
-          if(AppointmentStatusId === 1) appointmentCancel++;
-          else if(AppointmentStatusId === 11) appointmentNotCheckin++;
+          if(AppointmentStatusId == 1) appointmentCancel++;
+          else if(AppointmentStatusId == 11) appointmentNotCheckin++;
           else if(AppointmentStatusId >= 21) appointmentCheckin++;
           appointmentTotal++;
           appointmentTotalStatistics = {
