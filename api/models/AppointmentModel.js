@@ -616,6 +616,7 @@ module.exports = {
       CustomerId, 
       StartAt 
     } = AppointmentData;
+    console.log('StartAt -> ', StartAt);
     const startAtDate = new Date(StartAt);
     const startAtYear = startAtDate.getFullYear();
     console.log('startAtYear -> ', startAtYear);
