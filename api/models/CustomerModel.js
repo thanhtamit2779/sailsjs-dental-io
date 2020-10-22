@@ -213,7 +213,7 @@ module.exports = {
     let ProvinceIds = [];
     let DistrictIds = [];
     let WardIds = [];
-    if(customers.map(v => {
+    customers.map(v => {
       const { 
         CustomerId,
         UpdatedBy = null,
@@ -227,7 +227,7 @@ module.exports = {
       if(DistrictId && DistrictId > 0) DistrictIds.push(DistrictId);
       if(WardId && WardId > 0) WardIds.push(WardId);
       return v;
-    }));
+    });
     staffIds = [...new Set(staffIds)];
     ProvinceIds = [...new Set(ProvinceIds)];
     DistrictIds = [...new Set(DistrictIds)];
@@ -241,7 +241,7 @@ module.exports = {
     const districts = await WidgetModel.getDistrictsByIds(DistrictIds);
     const wards = await WidgetModel.getWardsByIds(WardIds);
   
-    if(customers.map(v => {
+    customers.map(v => {
       const { 
         CustomerId,
         CustomerTypeId,
@@ -253,19 +253,19 @@ module.exports = {
         WardId = null,
       } = v;
       v.Photo = CustomerModel.getPhotoUrl({ CustomerId, Gender, Photo });
-      v.CustomerPhoneNumber = customerPhones.filter(v => v.CustomerId == CustomerId);
-      v.CustomerEmail = customerEmails.filter(v => v.CustomerId == CustomerId);
+      v.CustomerPhoneNumber = customerPhones.filter(v => v.CustomerId == CustomerId) || null;
+      v.CustomerEmail = customerEmails.filter(v => v.CustomerId == CustomerId) || null;
       v.CustomerType = customerTypes.find(v => v.CustomerTypeId == CustomerTypeId);
-      v.EditBy = staffs.find(v => v.StaffId === UpdatedBy) || null;
+      v.EditBy = staffs.find(v => v.StaffId == UpdatedBy) || null;
       v.Province = provinces.find(v => v.VnProvinceId == ProvinceId);
       v.District = districts.find(v => v.VnDistrictId == DistrictId);
       v.Ward = wards.find(v => v.VnWardId == WardId);
       return v;
-    }));
-    console.log('customers -> ', customers);
+    });
 
     const executeTotal = await sails.sendNativeQuery(sqlTotalQuery);
     console.log('executeTotal -> ', executeTotal);
+    console.log('customers -> ', customers);
     const totalCustomer = executeTotal.rows || [];
     const Total = totalCustomer[0].TotalCustomer || 0;
     const customer = {
