@@ -50,7 +50,7 @@ module.exports = {
                   "BranchCode",
                   "Name"
                 FROM "public"."branch" 
-                ORDER BY Name ASC`;
+                ORDER BY "Name" ASC`;
     const execute = await sails.sendNativeQuery(sql);
     const result = execute.rows || [];
     return result;
@@ -117,11 +117,11 @@ module.exports = {
 
   getProvinces: async () => {
     const sql = `SELECT 
-                  VnProvinceId,
-                  NameVi,
-                  LabelVi
-                FROM vnprovince
-                ORDER BY Ordering ASC`;
+                  "VnProvinceId",
+                  "NameVi",
+                  "LabelVi"
+                FROM "public"."vnprovince"
+                ORDER BY "Ordering" ASC`;
     const execute = await sails.sendNativeQuery(sql);
     const result = execute.rows || [];
     return result;
@@ -131,12 +131,12 @@ module.exports = {
     if(!ProvinceIds || ProvinceIds.length === 0 ) return [];
     const whereIn = ProvinceIds.join();
     const sql = `SELECT 
-                  VnProvinceId,
-                  NameVi,
-                  LabelVi
-                FROM vnprovince
-                WHERE VnProvinceId IN (${whereIn})
-                ORDER BY Ordering ASC`;
+                  "VnProvinceId",
+                  "NameVi",
+                  "LabelVi"
+                FROM "public"."vnprovince"
+                WHERE "VnProvinceId" IN (${whereIn})
+                ORDER BY "Ordering" ASC`;
     const execute = await sails.sendNativeQuery(sql);
     const result = execute.rows || null;
     return result;
@@ -144,13 +144,13 @@ module.exports = {
 
   getDistrictsByProvinceId: async (VnProvinceId=1) => {
     const sql = `SELECT 
-                  VnDistrictId,
-                  VnProvinceId,
-                  NameVi,
-                  LabelVi
-                FROM vndistrict
-                WHERE VnProvinceId=${VnProvinceId}
-                ORDER BY Ordering ASC`;
+                  "VnDistrictId",
+                  "VnProvinceId",
+                  "NameVi",
+                  "LabelVi"
+                FROM "public"."vndistrict"
+                WHERE "VnProvinceId" = ${VnProvinceId}
+                ORDER BY "Ordering" ASC`;
     const execute = await sails.sendNativeQuery(sql);
     const result = execute.rows || [];
     return result;
