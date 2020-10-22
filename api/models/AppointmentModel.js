@@ -229,11 +229,7 @@ module.exports = {
   getAppointmentsInDay: async function (req, res) {
     const appointments = await AppointmentModel._getAppointments(req);
     if(appointments.length === 0) return {};
-
-    const nowDate = new Date();
-    console.log('getHours -> ', nowDate.getHours());
-    console.log('------------');
-    
+  
     // Ids
     const customerIds = [];
     let appointmentStatusIds = [];
@@ -262,16 +258,10 @@ module.exports = {
       customerIds.push(CustomerId);    
       appointmentStatusIds.push(AppointmentStatusId);
 
-      // console.log('StartAt -> ', StartAt);
       const startAtDate = new Date(StartAt * 1000);
-      // console.log('startAtDate -> ', startAtDate);
       const startAtHour = startAtDate.getHours();
-      console.log('startAtHour -> ', startAtHour);
       const startHour = startAtDate.getHours();
-      // console.log('startHour -> ', startAtHour);
       const endHour = startAtHour + 1;
-      // console.log('endHour -> ', endHour);
-      // console.log('---------');
 
       if(startHour) hourAppointments[startHour] = {
         StartAtTime: `${startHour}:00`,
@@ -280,7 +270,6 @@ module.exports = {
         EndAtIndex: endHour
       };
     });
-    console.log('hourAppointments -> ', hourAppointments);
   
     // Danh sách bác sỹ
     doctorIds = [...new Set(doctorIds) ];
@@ -314,7 +303,7 @@ module.exports = {
     let appointmentModeDark = [];
     let appointmentModeLight = [];
     
-    // hourAppointments = hourAppointments.filter(v => v);
+    hourAppointments = hourAppointments.filter(v => v);
     hourAppointments.map(v => {
       const { 
         StartAtIndex, 
