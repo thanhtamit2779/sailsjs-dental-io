@@ -15,6 +15,7 @@ module.exports = {
   getWidgets: async (req, res) => {
     const request = req.allParams(); 
     const { Widgets = []} = request;
+    console.log('Widgets -> ', Widgets);
     const widgets = [];
 
     if(Widgets.indexOf('Branch') !== -1) {
