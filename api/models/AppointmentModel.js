@@ -621,18 +621,22 @@ module.exports = {
     const startAtMonth = checkTime(startAtDate.getMonth() + 1);
     const startAtDay = checkTime(startAtDate.getDate());
     const startAt = `${startAtYear}-${startAtMonth}-${startAtDay}`;
-    console.log('startAt -> ', startAt);
 
     const sql = `SELECT "AppointmentId"
                  FROM "public"."appointment"
                  WHERE "CustomerId" = ${CustomerId}
-                 AND "AppointmentStatusId" NOT IN (1,71)
-                 AND TO_CHAR("StartAt", 'YYYY-MM-DD') = '${startAt}'`;    
-    console.log('_checkSaveInDay sql -< ', sql);
+                 AND "AppointmentStatusId" NOT IN (1,71)`;    
+
     const execute = await sails.sendNativeQuery(sql);
-    const ids = execute.rows || [];
-    if(ids.length !== 0) return false;
-    
+    const appointment = execute.rows || null;
+    if(appointment && appointment.length !== 0) {
+      const startAtDateInDay = new Date(appointment[0].StartAt * 1000);
+      const startAtYearInDay = startAtDateInDay.getFullYear();
+      const startAtMonthInDay = checkTime(startAtDateInDay.getMonth() + 1);
+      const startAtDayInDay = checkTime(startAtDateInDay.getDate());
+      const startAtInDay = `${startAtYearInDay}-${startAtMonthInDay}-${startAtDayInDay}`;
+      if(startAt === startAtInDay) return false;
+    }
     return true;
   },
 
