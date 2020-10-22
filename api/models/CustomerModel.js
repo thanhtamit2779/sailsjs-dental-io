@@ -314,9 +314,9 @@ module.exports = {
     customer.Photo = CustomerModel.getPhotoUrl({ Gender, Photo, CustomerId });
     customer.CustomerPhoneNumber = await CustomerModel.getPhonesByCustomerIds([CustomerId]);
     customer.CustomerEmail = await CustomerModel.getEmailsByCustomerIds([CustomerId]);
-    customer.Province = provinces.find(v => v.VnProvinceId === ProvinceId);
-    customer.District = districts.find(v => v.VnDistrictId === DistrictId);
-    customer.Ward = wards.find(v => v.VnWardId === WardId);
+    customer.Province = provinces.find(v => v.VnProvinceId == ProvinceId);
+    customer.District = districts.find(v => v.VnDistrictId == DistrictId);
+    customer.Ward = wards.find(v => v.VnWardId == WardId);
     return customer;
   },
 
