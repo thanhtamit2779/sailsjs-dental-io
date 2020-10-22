@@ -325,6 +325,7 @@ module.exports = {
 
     // Thông tin khách hàng
     const Customer = await CustomerModel.getCustomer(CustomerId);
+    console.log('Customer -> ', Customer);
 
     // Danh mục ghi chú
     const executeNoteCategory = await sails.sendNativeQuery(`SELECT "CustomerNoteCategoryId", "Name" FROM "public"."customernotecategory" WHERE "State" = 1`);
@@ -335,7 +336,7 @@ module.exports = {
     const CustomerNotes = await CustomerNoteModel.find({
       where: { CustomerId }
     }).sort([{ AddedAt: 'DESC' }]);
-    console.log('CustomerNotes -> ', CustomerNotes.length);
+    console.log('CustomerNotes -> ', CustomerNotes);
 
     CustomerNotes.length !== 0 && CustomerNotes.map(v => {
       const { 
@@ -364,11 +365,11 @@ module.exports = {
 
     // Lịch hẹn
     const Appointments = await CustomerModel.getAppointmentsByCustomerId(CustomerId);
-    console.log('Appointments -> ', Appointments.length);
+    console.log('Appointments -> ',Appointments);
 
     // Phản hồi
     const Complaints = await CustomerModel.getComplaintsCustomerId(CustomerId);
-    console.log('Complaints -> ', Complaints.length);
+    console.log('Complaints -> ', Complaints);
 
     // Mối quan hệ
     //const CustomerRelationship = await CustomerModel.getCustomerRelationshipByCustomerId(CustomerId);
@@ -465,23 +466,23 @@ module.exports = {
     }).sort([{ ComplaintedAt: 'DESC' }]);
 
     // Thuộc nhóm phản hồi nào
-    const executeComplaintReasonGroups = await sails.sendNativeQuery(`SELECT * FROM complaintreasongroup WHERE State = 1`);
+    const executeComplaintReasonGroups = await sails.sendNativeQuery(`SELECT * FROM "public"."complaintreasongroup" WHERE "State" = 1`);
     const complaintReasonGroups = executeComplaintReasonGroups.rows || [];
 
     // Bộ phận phản hồi
-    const executeComplaintAboutReason = await sails.sendNativeQuery(`SELECT ComplaintAboutReasonId, ComplaintReasonGroupId, Reason FROM complaintaboutreason WHERE State = 1`);
+    const executeComplaintAboutReason = await sails.sendNativeQuery(`SELECT "ComplaintAboutReasonId", "ComplaintReasonGroupId", "Reason" FROM "public"."complaintaboutreason" WHERE "State" = 1`);
     const complaintAboutReasons = executeComplaintAboutReason.rows || [];
 
     // Map dữ liệu
     complaintAboutReasons.length !== 0 && complaintAboutReasons.map(v => {
       const { ComplaintReasonGroupId } = v;
-      v.ComplaintReasonGroup = complaintReasonGroups.find(v => v.ComplaintReasonGroupId === ComplaintReasonGroupId) || null;
+      v.ComplaintReasonGroup = complaintReasonGroups.find(v => v.ComplaintReasonGroupId == ComplaintReasonGroupId) || null;
       return v;
     });
 
     complaints.length !== 0 && complaints.map(v => {
       const { ComplaintAboutReasonId, CreatedBy } = v;
-      v.ComplaintAboutReason = complaintAboutReasons.find(v => v.ComplaintAboutReasonId === ComplaintAboutReasonId) || null;
+      v.ComplaintAboutReason = complaintAboutReasons.find(v => v.ComplaintAboutReasonId == ComplaintAboutReasonId) || null;
       v.CustomerComplaintId = v.id;
       delete v.id;
       return v;
