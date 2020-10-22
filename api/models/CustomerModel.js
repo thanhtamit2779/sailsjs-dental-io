@@ -133,7 +133,7 @@ module.exports = {
     } = request;
     const Offset = (Page - 1) * PerPage;
 
-    const sqlTotal =  `SELECT COUNT("c"."CustomerId") as "TotalCustomer"`;
+    const sqlTotal =  `SELECT "c"."CustomerId" as "TotalCustomer"`;
     const sqlSelect = `SELECT 
                         "c"."CustomerId", 
                         "c"."FullName", 
@@ -203,7 +203,6 @@ module.exports = {
     sql += ` ORDER BY "c"."CustomerId" DESC`;
 
     const sqlTotalQuery = `${sqlTotal} ${sql}`;
-    console.log('sqlTotalQuery -> ', sqlTotalQuery);
     const sqlQuery = `${sqlSelect} ${sql} LIMIT ${PerPage} OFFSET ${Offset}`;
     const execute = await sails.sendNativeQuery(sqlQuery);
     const customers = execute.rows || [];
@@ -264,10 +263,9 @@ module.exports = {
       return v;
     });
 
-    // const executeTotal = await sails.sendNativeQuery(sqlTotalQuery);
-    // console.log('executeTotal -> ', executeTotal);
-    // const totalCustomer = executeTotal.rows || [];
-    const Total = 0;
+    const executeTotal = await sails.sendNativeQuery(sqlTotalQuery);
+    const totalCustomer = executeTotal.rows || [];
+    const Total = totalCustomer.length || 0;
     const customer = {
       Customers: customers,
       Pagination: {
@@ -277,7 +275,6 @@ module.exports = {
         PerPage
       }
     };
-    // console.log('customer -> ', customer);
     return customer;
   },
 
