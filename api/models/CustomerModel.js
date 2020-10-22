@@ -263,10 +263,10 @@ module.exports = {
       return v;
     });
 
-    const executeTotal = await sails.sendNativeQuery(sqlTotalQuery);
-    console.log('executeTotal -> ', executeTotal);
-    const totalCustomer = executeTotal.rows || [];
-    const Total = totalCustomer[0].TotalCustomer || 0;
+    // const executeTotal = await sails.sendNativeQuery(sqlTotalQuery);
+    // console.log('executeTotal -> ', executeTotal);
+    // const totalCustomer = executeTotal.rows || [];
+    const Total = 0;
     const customer = {
       Customers: customers,
       Pagination: {
