@@ -620,11 +620,11 @@ module.exports = {
     const startAtDay = checkTime(startAtDate.getDate());
     const startAt = `${startAtYear}-${startAtMonth}-${startAtDay}`;
 
-    const sql = `SELECT AppointmentId
-                 FROM appointment
-                 WHERE CustomerId = ${CustomerId}
-                 AND AppointmentStatusId NOT IN (1,71)
-                 AND DATE_FORMAT(FROM_UNIXTIME(StartAt), \'%Y-%m-%d\') = '${startAt}'`;    
+    const sql = `SELECT "AppointmentId"
+                 FROM "public"."appointment"
+                 WHERE "CustomerId" = ${CustomerId}
+                 AND "AppointmentStatusId" NOT IN (1,71)
+                 AND DATE_FORMAT(FROM_UNIXTIME("StartAt"), \'%Y-%m-%d\') = '${startAt}'`;    
     const execute = await sails.sendNativeQuery(sql);
     const ids = execute.rows || [];
     if(ids.length !== 0) return false;

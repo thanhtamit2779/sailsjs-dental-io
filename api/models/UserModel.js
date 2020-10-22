@@ -33,10 +33,10 @@ module.exports = {
     if(Email && Password) {
       Password = md5(Password);
       const sql = `SELECT 
-                    UserId
-                  FROM user
-                  WHERE Email = '${Email}' AND Password = '${Password}'
-                  LIMIT 0, 1`;
+                    "UserId"
+                  FROM "public"."user"
+                  WHERE "Email" = '${Email}' AND "Password" = '${Password}'
+                  LIMIT 1 OFFSET 0`;
       const execute = await sails.sendNativeQuery(sql);
       const result = execute.rows[0] || {};
       return result;
@@ -47,16 +47,16 @@ module.exports = {
   getUserInfo: async (UserId = null) => {
     if(!UserId) return false;
     const sql = `SELECT 
-                  UserId, 
-                  Email, 
-                  Mobile,
-                  Avatar,
-                  Gender,
-                  Name,
-                  LastLogedIn
-                FROM user
-                WHERE UserId = ${UserId}
-                LIMIT 0, 1`;
+                  "UserId", 
+                  "Email", 
+                  "Mobile",
+                  "Avatar",
+                  "Gender",
+                  "Name",
+                  "LastLogedIn"
+                FROM "public"."user"
+                WHERE "UserId" = ${UserId}
+                LIMIT 1 OFFSET 0`;
     const execute = await sails.sendNativeQuery(sql);
     const result = execute.rows[0] || null;
     return result;
@@ -65,13 +65,13 @@ module.exports = {
   getStaffByUserId: async (UserId = null) => {
     if(!UserId) return false;
     const sql = `SELECT 
-                  StaffId, 
-                  UserId, 
-                  FullName, 
-                  State
-                 FROM staff
-                 WHERE UserId = ${UserId} AND State = 1
-                 LIMIT 0, 1`;
+                  "StaffId", 
+                  "UserId", 
+                  "FullName", 
+                  "State"
+                 FROM "public"."staff"
+                 WHERE "UserId" = ${UserId} AND "State" = 1
+                 LIMIT 1 OFFSET 0`;
     const execute = await sails.sendNativeQuery(sql);
     const result = execute.rows[0] || null;
     return result;
@@ -81,7 +81,7 @@ module.exports = {
     if(!UserId) return false;
     const currentDateTimestamp = new Date().getTime();
     const LastLogedIn = ~~(currentDateTimestamp/1000);
-    const sql = `UPDATE user SET LastLogedIn=${LastLogedIn} WHERE UserId=${UserId}`;
+    const sql = `UPDATE "public"."user" SET "LastLogedIn"=${LastLogedIn} WHERE "UserId"=${UserId}`;
     return await sails.sendNativeQuery(sql);
   }
 
