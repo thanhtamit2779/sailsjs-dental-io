@@ -15,7 +15,6 @@ module.exports = {
   getWidgets: async (req, res) => {
     const request = req.allParams(); 
     const { Widgets = []} = request;
-    console.log('request -> ', request);
     const widgets = [];
 
     if(Widgets.indexOf('Branch') !== -1) {
@@ -44,14 +43,14 @@ module.exports = {
 
     if(Widgets.indexOf('AppointmentStatus') !== -1) {
       widgets.push({
-        name: 'AppointmentType',
+        name: 'AppointmentStatus',
         data: await WidgetModel.getAppointmentStatus()
       })
     }
 
     if(Widgets.indexOf('AppointmentStatusNote') !== -1) {
       widgets.push({
-        name: 'AppointmentType',
+        name: 'AppointmentStatusNote',
         data: await WidgetModel.getAppointmentStatusNotes()
       })
     }

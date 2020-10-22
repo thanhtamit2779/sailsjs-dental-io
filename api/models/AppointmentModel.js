@@ -572,6 +572,7 @@ module.exports = {
 
   _create: async (AppointmentData) => {
     const checkSaveInDay = await AppointmentModel._checkSaveInDay(AppointmentData);
+    console.log('checkSaveInDay -> ', checkSaveInDay);
     if(!checkSaveInDay) {
         return {
           Appointment: null,
@@ -585,6 +586,7 @@ module.exports = {
     AppointmentData.CreatedAt = ~~(new Date().getTime()/1000);
     AppointmentData.AppointmentStatusId = 11;
     const Appointment = await AppointmentModel.create(AppointmentData).fetch();
+    console.log('Appointment -> ', Appointment)
 
     if(!Appointment && Object.values(Appointment).length === 0) {
       return {
@@ -597,7 +599,7 @@ module.exports = {
     }
 
     Appointment.AppointmentId = Appointment.id;
-    delete Appointment.id;
+    if(Appointment) delete Appointment.id;
     return {
       Appointment,
       Notify: [{
@@ -625,6 +627,7 @@ module.exports = {
                  WHERE "CustomerId" = ${CustomerId}
                  AND "AppointmentStatusId" NOT IN (1,71)
                  AND DATE_FORMAT(FROM_UNIXTIME("StartAt"), \'%Y-%m-%d\') = '${startAt}'`;    
+    console.log('_checkSaveInDay sql ', sql);
     const execute = await sails.sendNativeQuery(sql);
     const ids = execute.rows || [];
     if(ids.length !== 0) return false;
