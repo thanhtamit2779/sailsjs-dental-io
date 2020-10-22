@@ -616,7 +616,6 @@ module.exports = {
       CustomerId, 
       StartAt 
     } = AppointmentData;
-    console.log('StartAt -> ', StartAt);
     const startAtDate = new Date(StartAt);
     const startAtYear = startAtDate.getFullYear();
     console.log('startAtYear -> ', startAtYear);
@@ -658,8 +657,10 @@ module.exports = {
       StartAt, 
       EndAt 
     } = AppointmentData;
+    console.log('StartAt -> ', StartAt);
     AppointmentData.StartAt = ~~(new Date(StartAt).getTime()/1000);
     AppointmentData.EndAt = ~~(new Date(EndAt).getTime()/1000);
+    console.log('AppointmentData -> ', AppointmentData);
 
     // Cập nhật
     if(AppointmentId && AppointmentId > 0) return await AppointmentModel._update(AppointmentId, AppointmentData);
