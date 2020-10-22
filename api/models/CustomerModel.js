@@ -205,6 +205,7 @@ module.exports = {
 
     const sqlTotalQuery = `${sqlTotal} ${sql}`;
     const sqlQuery = `${sqlSelect} ${sql} LIMIT ${PerPage} OFFSET ${Offset}`;
+    console.log('sqlQuery -> ', sqlQuery);
     const execute = await sails.sendNativeQuery(sqlQuery);
     const customers = execute.rows || [];
     if(customers.length === 0) return [];
