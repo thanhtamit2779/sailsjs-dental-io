@@ -622,7 +622,7 @@ module.exports = {
     const startAtDay = checkTime(startAtDate.getDate());
     const startAt = `${startAtYear}-${startAtMonth}-${startAtDay}`;
 
-    const sql = `SELECT "AppointmentId"
+    const sql = `SELECT "StartAt"
                  FROM "public"."appointment"
                  WHERE "CustomerId" = ${CustomerId}
                  AND "AppointmentStatusId" NOT IN (1,71)`;    
@@ -635,6 +635,8 @@ module.exports = {
       const startAtMonthInDay = checkTime(startAtDateInDay.getMonth() + 1);
       const startAtDayInDay = checkTime(startAtDateInDay.getDate());
       const startAtInDay = `${startAtYearInDay}-${startAtMonthInDay}-${startAtDayInDay}`;
+      console.log('startAtInDay -> ', startAtInDay);
+      console.log('startAt -> ', startAt);
       if(startAt === startAtInDay) return false;
     }
     return true;
