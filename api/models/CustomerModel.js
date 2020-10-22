@@ -151,7 +151,7 @@ module.exports = {
                         "c"."UpdatedAt",
                         "c"."UpdatedBy",
                         (SELECT COUNT("AppointmentId") FROM "public"."appointment" as "a" WHERE "a"."CustomerId" = "c"."CustomerId") AS "TotalAppointment"`;
-    let sql = `FROM "public"."customer" as c WHERE 1 = 1`;
+    let sql = `FROM "public"."customer" as "c" WHERE 1 = 1`;
 
     if(Keyword.length > 2) {
       // Search By
