@@ -618,16 +618,20 @@ module.exports = {
     } = AppointmentData;
     const startAtDate = new Date(StartAt);
     const startAtYear = startAtDate.getFullYear();
+    console.log('startAtYear -> ', startAtYear);
     const startAtMonth = checkTime(startAtDate.getMonth() + 1);
+    console.log('startAtMonth -> ', startAtMonth);
     const startAtDay = checkTime(startAtDate.getDate());
+    console.log('startAtDay -> ', startAtDay);
     const startAt = `${startAtYear}-${startAtMonth}-${startAtDay}`;
+    console.log('startAt -> ', startAt);
 
     const sql = `SELECT "AppointmentId"
                  FROM "public"."appointment"
                  WHERE "CustomerId" = ${CustomerId}
                  AND "AppointmentStatusId" NOT IN (1,71)
                  AND DATE_FORMAT(FROM_UNIXTIME("StartAt"), \'%Y-%m-%d\') = '${startAt}'`;    
-    console.log('_checkSaveInDay sql ', sql);
+    console.log('_checkSaveInDay sql -< ', sql);
     const execute = await sails.sendNativeQuery(sql);
     const ids = execute.rows || [];
     if(ids.length !== 0) return false;
