@@ -266,7 +266,7 @@ module.exports = {
       const startAtDate = new Date(StartAt * 1000);
       // console.log('startAtDate -> ', startAtDate);
       const startAtHour = startAtDate.getHours();
-      // console.log('startAtHour -> ', startAtHour);
+      console.log('startAtHour -> ', startAtHour);
       const startHour = startAtDate.getHours();
       // console.log('startHour -> ', startAtHour);
       const endHour = startAtHour + 1;
@@ -280,7 +280,7 @@ module.exports = {
         EndAtIndex: endHour
       };
     });
-    // console.log('hourAppointments -> ', hourAppointments);
+    console.log('hourAppointments -> ', hourAppointments);
   
     // Danh sách bác sỹ
     doctorIds = [...new Set(doctorIds) ];
@@ -394,7 +394,7 @@ module.exports = {
           appointment.Buttons = AppointmentModel._getAppointmentActions(AppointmentStatusId, appointmentStatus);
 
           // Nhóm lịch hẹn theo từng khung giờ
-          if(startAtHour === StartAtIndex && startAtHour < EndAtIndex) {      
+          if(startAtHour == StartAtIndex && startAtHour < EndAtIndex) {      
               total++;
               data.push(appointment);
           }
