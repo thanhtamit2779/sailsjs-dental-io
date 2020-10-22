@@ -234,20 +234,12 @@ module.exports = {
     WardIds = [...new Set(WardIds)]; 
 
     const customerTypes = await WidgetModel.getCustomerTypes();
-    console.log('customerTypes -> ', customerTypes);
     const customerPhones = await CustomerModel.getPhonesByCustomerIds(customerIds);
-    console.log('customerPhones -> ', customerPhones);
     const customerEmails = await CustomerModel.getEmailsByCustomerIds(customerIds);
-    console.log('customerEmails -> ', customerEmails);
     const staffs = await WidgetModel.getStaffsByIds(staffIds);
-    console.log('staffs -> ', staffs);
     const provinces = await WidgetModel.getProvincesByIds(ProvinceIds);
-    console.log('provinces -> ', provinces);
     const districts = await WidgetModel.getDistrictsByIds(DistrictIds);
-    console.log('districts -> ', districts);
     const wards = await WidgetModel.getWardsByIds(WardIds);
-    console.log('wards -> ', wards);
-    return [];
   
     if(customers.map(v => {
       const { 
@@ -261,17 +253,19 @@ module.exports = {
         WardId = null,
       } = v;
       v.Photo = CustomerModel.getPhotoUrl({ CustomerId, Gender, Photo });
-      v.CustomerPhoneNumber = customerPhones.filter(v => v.CustomerId === CustomerId);
-      v.CustomerEmail = customerEmails.filter(v => v.CustomerId === CustomerId);
-      v.CustomerType = customerTypes.find(v => v.CustomerTypeId === CustomerTypeId);
-      v.EditBy = staffs.find(v => v.StaffId === UpdatedBy) || {};
-      v.Province = provinces.find(v => v.VnProvinceId === ProvinceId);
-      v.District = districts.find(v => v.VnDistrictId === DistrictId);
-      v.Ward = wards.find(v => v.VnWardId === WardId);
+      v.CustomerPhoneNumber = customerPhones.filter(v => v.CustomerId == CustomerId);
+      v.CustomerEmail = customerEmails.filter(v => v.CustomerId == CustomerId);
+      v.CustomerType = customerTypes.find(v => v.CustomerTypeId == CustomerTypeId);
+      v.EditBy = staffs.find(v => v.StaffId === UpdatedBy) || null;
+      v.Province = provinces.find(v => v.VnProvinceId == ProvinceId);
+      v.District = districts.find(v => v.VnDistrictId == DistrictId);
+      v.Ward = wards.find(v => v.VnWardId == WardId);
       return v;
     }));
+    console.log('customers -> ', customers);
 
     const executeTotal = await sails.sendNativeQuery(sqlTotalQuery);
+    console.log('executeTotal -> ', executeTotal);
     const totalCustomer = executeTotal.rows || [];
     const Total = totalCustomer[0].TotalCustomer || 0;
     const customer = {
@@ -283,6 +277,7 @@ module.exports = {
         PerPage
       }
     };
+    console.log('customer -> ', customer);
     return customer;
   },
 
