@@ -133,26 +133,26 @@ module.exports = {
     } = request;
     const Offset = (Page - 1) * PerPage;
 
-    const sqlTotal =  `SELECT COUNT(c.CustomerId) as TotalCustomer`;
+    const sqlTotal =  `SELECT COUNT("c"."CustomerId") as "TotalCustomer"`;
     const sqlSelect = `SELECT 
-                        c.CustomerId, 
-                        c.FullName, 
-                        c.Gender, 
-                        c.Birthday, 
-                        c.State,       
-                        c.Photo, 
-                        c.CustomerTypeId, 
-                        c.CustomerCode, 
-                        c.Note,
-                        c.ProvinceId,
-                        c.DistrictId,
-                        c.WardId,
-                        c.Address,
-                        c.UpdatedAt,
-                        c.UpdatedBy,
-                        (SELECT SUM(TotalAmount) FROM payment WHERE CustomerId = c.CustomerId) AS PaidAmount,
-                        (SELECT COUNT(AppointmentId) FROM appointment WHERE CustomerId = c.CustomerId) AS TotalAppointment`;
-    let sql = `FROM customer as c WHERE 1 = 1`;
+                        "c"."CustomerId", 
+                        "c"."FullName", 
+                        "c"."Gender", 
+                        "c"."Birthday", 
+                        "c"."State",       
+                        "c"."Photo", 
+                        "c"."CustomerTypeId", 
+                        "c"."CustomerCode", 
+                        "c"."Note",
+                        "c"."ProvinceId",
+                        "c"."DistrictId",
+                        "c"."WardId",
+                        "c"."Address",
+                        "c"."UpdatedAt",
+                        "c"."UpdatedBy",
+                        (SELECT SUM("TotalAmount") FROM "public"."payment" WHERE "CustomerId" = "c"."CustomerId") AS "PaidAmount",
+                        (SELECT COUNT(AppointmentId) FROM "public"."appointment" WHERE "CustomerId" = "c"."CustomerId") AS "TotalAppointment"`;
+    let sql = `FROM "public"."customer" as c WHERE 1 = 1`;
 
     if(Keyword.length > 2) {
       // Search By
@@ -169,42 +169,42 @@ module.exports = {
 
       switch(searchBy) {
         case 2:
-          sql += ` AND c.CustomerCode LIKE '%${Keyword}%'`;
+          sql += ` AND "c"."CustomerCode" LIKE '%${Keyword}%'`;
           break;
 
         case 3:
-          sql += ` AND c.CustomerId IN (SELECT CustomerId FROM customerphonenumber WHERE PhoneNumber LIKE '%${Keyword}%')`;
+          sql += ` AND "c"."CustomerId" IN (SELECT "CustomerId" FROM "public"."customerphonenumber" WHERE "PhoneNumber" LIKE '%${Keyword}%')`;
           break;
 
         default:
-          sql += ` AND c.FullName LIKE '%${Keyword}%'`;
+          sql += ` AND "c"."FullName" LIKE '%${Keyword}%'`;
           break;
       }
     }
 
     if(DistrictId > 0) {
-      sql += ` AND c.DistrictId=${DistrictId}`;
+      sql += ` AND "c"."DistrictId"=${DistrictId}`;
     }
 
     if(ProvinceId > 0) {
-      sql += ` AND c.ProvinceId=${ProvinceId}`;
+      sql += ` AND "c"."ProvinceId"=${ProvinceId}`;
     }
 
     if(WardId > 0) {
-      sql += ` AND c.WardId=${WardId}`;
+      sql += ` AND "c"."WardId"=${WardId}`;
     }
 
     if(State >= 0) {
-      sql += ` AND c.State=${State}`;
+      sql += ` AND "c"."State"=${State}`;
     }
     
     if(CustomerTypeId > 0) {
-      sql += ` AND c.CustomerTypeId = ${CustomerTypeId}`;
+      sql += ` AND "c"."CustomerTypeId" = ${CustomerTypeId}`;
     }
-    sql += ` ORDER BY c.CustomerId DESC`;
+    sql += ` ORDER BY "c"."CustomerId" DESC`;
 
     const sqlTotalQuery = `${sqlTotal} ${sql}`;
-    const sqlQuery = `${sqlSelect} ${sql} LIMIT ${Offset}, ${PerPage}`;
+    const sqlQuery = `${sqlSelect} ${sql} LIMIT ${PerPage} OFFSET ${Offset}`;
     const execute = await sails.sendNativeQuery(sqlQuery);
     const customers = execute.rows || [];
     if(customers.length === 0) return [];

@@ -89,7 +89,7 @@ module.exports = {
   },
 
   getCustomerTypes: async () => {
-    const sql = `SELECT CustomerTypeId, Name FROM customertype WHERE State=1`;
+    const sql = `SELECT "CustomerTypeId", "Name" FROM "public"."customertype" WHERE "State" = 1`;
     const execute = await sails.sendNativeQuery(sql);
     const result = execute.rows || [];
     return result;
@@ -160,13 +160,13 @@ module.exports = {
     if(!DistrictIds || DistrictIds.length === 0) return [];
     const whereIn = DistrictIds.join();
     const sql = `SELECT 
-                  VnDistrictId,
-                  VnProvinceId,
-                  NameVi,
-                  LabelVi
-                FROM vndistrict
-                WHERE VnDistrictId IN (${whereIn})
-                ORDER BY Ordering ASC`;
+                  "VnDistrictId",
+                  "VnProvinceId",
+                  "NameVi",
+                  "LabelVi"
+                FROM "public"."vndistrict"
+                WHERE "VnDistrictId" IN (${whereIn})
+                ORDER BY "Ordering" ASC`;
     const execute = await sails.sendNativeQuery(sql);
     const result = execute.rows || [];
     return result;
@@ -174,13 +174,13 @@ module.exports = {
 
   getWardsByDistrictId: async (VnDistrictId=1) => {
     const sql = `SELECT 
-                  VnDistrictId,
-                  VnWardId,
-                  NameVi,
-                  LabelVi
-                FROM vnward
-                WHERE VnDistrictId=${VnDistrictId}
-                ORDER BY Ordering ASC`;
+                  "VnDistrictId",
+                  "VnWardId",
+                  "NameVi",
+                  "LabelVi"
+                FROM "public"."vnward"
+                WHERE "VnDistrictId" = ${VnDistrictId}
+                ORDER BY "Ordering" ASC`;
     const execute = await sails.sendNativeQuery(sql);
     const result = execute.rows || [];
     return result;
@@ -190,13 +190,13 @@ module.exports = {
     if(!WardIds || WardIds.length === 0) return [];
     const whereIn = WardIds.join();
     const sql = `SELECT 
-                  VnDistrictId,
-                  VnWardId,
-                  NameVi,
-                  LabelVi
-                FROM vnward
-                WHERE VnWardId IN(${whereIn})
-                ORDER BY Ordering ASC`;
+                  "VnDistrictId",
+                  "VnWardId",
+                  "NameVi",
+                  "LabelVi"
+                FROM "public"."vnward"
+                WHERE "VnWardId" IN(${whereIn})
+                ORDER BY "Ordering" ASC`;
     const execute = await sails.sendNativeQuery(sql);
     const result = execute.rows || [];
     return result;
