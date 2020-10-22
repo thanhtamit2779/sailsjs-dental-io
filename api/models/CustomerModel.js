@@ -150,7 +150,6 @@ module.exports = {
                         "c"."Address",
                         "c"."UpdatedAt",
                         "c"."UpdatedBy",
-                        (SELECT SUM("TotalAmount") FROM "public"."payment" WHERE "CustomerId" = "c"."CustomerId") AS "PaidAmount",
                         (SELECT COUNT(AppointmentId) FROM "public"."appointment" WHERE "CustomerId" = "c"."CustomerId") AS "TotalAppointment"`;
     let sql = `FROM "public"."customer" as c WHERE 1 = 1`;
 
