@@ -48,6 +48,7 @@ module.exports = {
     if(CustomerId && CustomerId > 0) {
       const File = req.file('Photo');
       await CustomerModel.updatePhoto({ File, CustomerId }, async uploadFile => {
+        console.log('uploadFile -> ', uploadFile);
         const resultUpdate = await CustomerModel.updateCustomer(Customer, CustomerId);
         const { Notify = [] } = uploadFile;
 
@@ -66,9 +67,7 @@ module.exports = {
       if(CustomerId) {
         const File = req.file('Photo');
         await CustomerModel.updatePhoto({ File, CustomerId }, async uploadFile => {
-          console.log('uploadFile -> ', uploadFile);
           const { Notify = [] } = uploadFile;
-          console.log("resultSave -> ", resultSave);
           return res.json({
             ...resultSave,
             Notify: Notify.concat(resultSave.Notify)
