@@ -868,9 +868,9 @@ module.exports = {
     if(File.fieldName.search('NOOP_') > 0) return null;
 
     try {
-      console.log('__dirname ', require('path').resolve(__dirname, `assets/images/modules/customer/${CustomerId}`));
+      console.log('path -> ', `${appPath}/assets/images/modules/customer/${CustomerId}`);
       await File.upload({
-        dirname: require('path').resolve(__dirname, `assets/images/modules/customer/${CustomerId}`),
+        dirname:  `${appPath}/assets/images/modules/customer/${CustomerId}`,
         saveAs : function(file, res) {
           const fileName = file.filename.replace(' ', '');
           res(null, fileName);
@@ -985,8 +985,7 @@ module.exports = {
     console.log('Photo -> ', Photo);
     let avatar = (Gender === 2) ? require('util').format('%s/images/modules/customer/avatar-girl.jpg', baseUrl) : require('util').format('%s/images/modules/customer/avatar-boy.jpg', baseUrl);
     if(Photo && Photo != 'NULL') { 
-      const imagePath = `${appPath}/assets/images/modules/customer/${CustomerId}/${Photo}`;
-      console.log('imagePath -> ', imagePath);
+      const imagePath = `${appPath}\\assets\\images\\modules\\customer\\${CustomerId}\\${Photo}`;
       if(fs.existsSync(imagePath)) { 
         avatar = require('util').format('%s/images/modules/customer/%s/%s', baseUrl, CustomerId, Photo);
         console.log('imageUrl -> ', avatar);
