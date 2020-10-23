@@ -787,6 +787,7 @@ module.exports = {
   },
 
   updateCustomer: async (CustomerData = null, CustomerId = null) => {
+    console.log('CustomerData -> ', CustomerData);
     if(!CustomerData || !CustomerId) return {
       Customer: null,
       Notify: [
@@ -886,8 +887,6 @@ module.exports = {
           });
 
           const file = { ...success[0] };
-          console.log('success upload -> ', success);
-          console.log('file -> ', file);
           const { 
             filename = null, 
             status = null 
