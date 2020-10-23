@@ -622,12 +622,10 @@ module.exports = {
     const startAtDay = checkTime(startAtDate.getDate());
     const startAt = `${startAtYear}-${startAtMonth}-${startAtDay}`;
 
-    const sql = `SELECT "StartAt"
+    const sql = `SELECT "AppointmentId"
                  FROM "public"."appointment"
                  WHERE "CustomerId" = ${CustomerId}
                  AND "AppointmentStatusId" NOT IN (1,71) AND to_char(to_timestamp("StartAt"), 'YYYY-MM-DD') = '${startAt}'`;    
-
-    console.log('sql -> ', sql);
     const execute = await sails.sendNativeQuery(sql);
     const appointment = execute.rows || null;
     if(appointment && appointment.length !== 0) return false;

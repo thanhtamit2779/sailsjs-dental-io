@@ -866,6 +866,7 @@ module.exports = {
     if(!File || !CustomerId) return null;
     if(File.fieldName.search('NOOP_') > 0) return null;
 
+    console.log('File -> ', File);
     try {
       await File.upload({
         dirname: require('path').resolve(sails.config.appPath, `assets/images/modules/customer/${CustomerId}`),
@@ -981,9 +982,12 @@ module.exports = {
     Photo, 
     Gender
   }) => {
+    console.log('Photo -> ', Photo);
     let avatar = (Gender === 2) ? require('util').format('%s/images/modules/customer/avatar-girl.jpg', baseUrl) : require('util').format('%s/images/modules/customer/avatar-boy.jpg', baseUrl);
     if(Photo && Photo != 'NULL') { 
       const imagePath = `${appPath}\\assets\\images\\modules\\customer\\${CustomerId}\\${Photo}`;
+      console.log('imagePath -> ', imagePath);
+      console.log('imageUrl -> ', require('util').format('%s/images/modules/customer/%s/%s', baseUrl, CustomerId, Photo))
       if(fs.existsSync(imagePath)) avatar = require('util').format('%s/images/modules/customer/%s/%s', baseUrl, CustomerId, Photo);
     }
     return avatar;
