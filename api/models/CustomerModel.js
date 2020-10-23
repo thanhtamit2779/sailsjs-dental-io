@@ -892,6 +892,8 @@ module.exports = {
             filename = null, 
             status = null 
           } = file;
+          console.log('filename -> ', filename);
+          console.log('finished -> ', finished);
 
           if(!filename) return callback && callback({
             Code: false,
@@ -904,6 +906,7 @@ module.exports = {
 
           if(status && status === 'finished') {
             const execute = await CustomerModel.update({ id: CustomerId }).set({Photo: filename}).fetch();
+            console.log('execute -> ', execute);
       
             // Upload ảnh thành công
             let result = {
