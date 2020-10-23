@@ -984,11 +984,13 @@ module.exports = {
     console.log('Photo -> ', Photo);
     let avatar = (Gender === 2) ? require('util').format('%s/images/modules/customer/avatar-girl.jpg', baseUrl) : require('util').format('%s/images/modules/customer/avatar-boy.jpg', baseUrl);
     if(Photo && Photo != 'NULL') { 
-      const imagePath = `${appPath}\\assets\\images\\modules\\customer\\${CustomerId}\\${Photo}`;
+      const imagePath = `${appPath}/assets/images/modules/customer/${CustomerId}/${Photo}`;
       console.log('imagePath -> ', imagePath);
-      if(fs.existsSync(imagePath)) avatar = require('util').format('%s/images/modules/customer/%s/%s', baseUrl, CustomerId, Photo);
+      if(fs.existsSync(imagePath)) { 
+        avatar = require('util').format('%s/images/modules/customer/%s/%s', baseUrl, CustomerId, Photo);
+        console.log('imageUrl -> ', avatar);
+      }
     }
-    console.log('imageUrl -> ', avatar);
     return avatar;
   }
 };
