@@ -868,8 +868,9 @@ module.exports = {
     if(File.fieldName.search('NOOP_') > 0) return null;
 
     try {
+      console.log('__dirname ', __dirname);
       await File.upload({
-        dirname: require('path').resolve(sails.config.appPath, `assets/images/modules/customer/${CustomerId}`),
+        dirname: require('path').resolve(__dirname, `assets/images/modules/customer/${CustomerId}`),
         saveAs : function(file, res) {
           const fileName = file.filename.replace(' ', '');
           res(null, fileName);
