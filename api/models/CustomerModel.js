@@ -787,7 +787,6 @@ module.exports = {
   },
 
   updateCustomer: async (CustomerData = null, CustomerId = null) => {
-    console.log('CustomerData -> ', CustomerData);
     if(!CustomerData || !CustomerId) return {
       Customer: null,
       Notify: [
@@ -891,9 +890,7 @@ module.exports = {
             filename = null, 
             status = null 
           } = file;
-          console.log('filename -> ', filename);
-          console.log('status -> ', status);
-
+          
           if(!filename) return callback && callback({
             Code: false,
             File: file,
@@ -905,8 +902,6 @@ module.exports = {
 
           if(status && status === 'finished') {
             const execute = await CustomerModel.update({ id: CustomerId }).set({Photo: filename}).fetch();
-            console.log('execute -> ', execute);
-      
             // Upload ảnh thành công
             let result = {
               Notify: [{

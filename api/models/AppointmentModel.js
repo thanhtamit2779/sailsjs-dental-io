@@ -661,14 +661,6 @@ module.exports = {
   },
 
   changeAppointmentStatus: async (req) => {
-    let response = {
-      Appointment: null,
-      Notify: [{
-        Message: 'Cập nhật trạng thái lịch hẹn thất bại!',
-        Code: false
-      }]
-    };
-
     const { 
       AppointmentId = null 
     } = req.params;

@@ -8,7 +8,7 @@
 module.exports = {  
   love: async (req, res) => {
     return res.ok({
-      Note: 'Tâm yêu Thảo'
+      Note: 'Bùi Thanh Tâm yêu Nguyễn Thị Phương Thảo(Cỏ Thơm)'
     });
   }
 };
