@@ -625,7 +625,7 @@ module.exports = {
     const sql = `SELECT "AppointmentId"
                  FROM "public"."appointment"
                  WHERE "CustomerId" = ${CustomerId}
-                 AND "AppointmentStatusId" NOT IN (1,71) AND to_char(to_timestamp("StartAt"), 'YYYY-MM-DD') = '${startAt}'`;    
+                 AND "AppointmentStatusId" NOT IN (1,71) AND to_char(to_timestamp("StartAt"), 'YYYY-MM-DD') = '${startAt}'`; 
     const execute = await sails.sendNativeQuery(sql);
     const appointment = execute.rows || null;
     if(appointment && appointment.length !== 0) return false;

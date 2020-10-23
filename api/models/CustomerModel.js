@@ -299,6 +299,7 @@ module.exports = {
       DistrictId = null,
       WardId = null, 
     } = customer;
+    console.log('Photo DB -> ',  Photo);
 
     let ProvinceIds, DistrictIds, WardIds = [];
     
@@ -866,7 +867,6 @@ module.exports = {
     if(!File || !CustomerId) return null;
     if(File.fieldName.search('NOOP_') > 0) return null;
 
-    console.log('File -> ', File);
     try {
       await File.upload({
         dirname: require('path').resolve(sails.config.appPath, `assets/images/modules/customer/${CustomerId}`),
@@ -886,6 +886,8 @@ module.exports = {
           });
 
           const file = { ...success[0] };
+          console.log('success upload -> ', success);
+          console.log('file -> ', file);
           const { 
             filename = null, 
             status = null 
@@ -987,9 +989,9 @@ module.exports = {
     if(Photo && Photo != 'NULL') { 
       const imagePath = `${appPath}\\assets\\images\\modules\\customer\\${CustomerId}\\${Photo}`;
       console.log('imagePath -> ', imagePath);
-      console.log('imageUrl -> ', require('util').format('%s/images/modules/customer/%s/%s', baseUrl, CustomerId, Photo))
       if(fs.existsSync(imagePath)) avatar = require('util').format('%s/images/modules/customer/%s/%s', baseUrl, CustomerId, Photo);
     }
+    console.log('imageUrl -> ', avatar);
     return avatar;
   }
 };
