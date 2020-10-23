@@ -893,7 +893,7 @@ module.exports = {
             status = null 
           } = file;
           console.log('filename -> ', filename);
-          console.log('finished -> ', finished);
+          console.log('status -> ', status);
 
           if(!filename) return callback && callback({
             Code: false,
