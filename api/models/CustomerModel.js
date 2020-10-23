@@ -868,7 +868,7 @@ module.exports = {
     if(File.fieldName.search('NOOP_') > 0) return null;
 
     try {
-      console.log('__dirname ', __dirname);
+      console.log('__dirname ', require('path').resolve(__dirname, `assets/images/modules/customer/${CustomerId}`));
       await File.upload({
         dirname: require('path').resolve(__dirname, `assets/images/modules/customer/${CustomerId}`),
         saveAs : function(file, res) {
