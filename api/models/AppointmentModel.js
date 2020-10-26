@@ -650,11 +650,9 @@ module.exports = {
       StartAt, 
       EndAt 
     } = AppointmentData;
-    console.log('StartAt -> ', StartAt);
     AppointmentData.StartAt = ~~(new Date(StartAt).getTime()/1000);
     AppointmentData.EndAt = ~~(new Date(EndAt).getTime()/1000);
-    console.log('AppointmentData -> ', AppointmentData);
-
+    
     // Cập nhật
     if(AppointmentId && AppointmentId > 0) return await AppointmentModel._update(AppointmentId, AppointmentData);
     else return await AppointmentModel._create(AppointmentData);

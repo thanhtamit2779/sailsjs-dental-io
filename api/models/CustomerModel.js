@@ -147,9 +147,6 @@ module.exports = {
                         "c"."CustomerTypeId", 
                         "c"."CustomerCode", 
                         "c"."Note",
-                        "c"."ProvinceId",
-                        "c"."DistrictId",
-                        "c"."WardId",
                         "c"."Address",
                         "c"."UpdatedAt",
                         "c"."UpdatedBy",
@@ -184,18 +181,6 @@ module.exports = {
       }
     }
 
-    if(DistrictId > 0) {
-      sql += ` AND "c"."DistrictId"=${DistrictId}`;
-    }
-
-    if(ProvinceId > 0) {
-      sql += ` AND "c"."ProvinceId"=${ProvinceId}`;
-    }
-
-    if(WardId > 0) {
-      sql += ` AND "c"."WardId"=${WardId}`;
-    }
-
     if(State >= 0) {
       sql += ` AND "c"."State"=${State}`;
     }
@@ -213,37 +198,22 @@ module.exports = {
 
     const customerIds = [];
     let staffIds = [];
-    let ProvinceIds = [];
-    let DistrictIds = [];
-    let WardIds = [];
     customers.map(v => {
       const { 
         CustomerId,
-        UpdatedBy = null,
-        ProvinceId = null,
-        DistrictId = null,
-        WardId = null,
+        UpdatedBy = null
       } = v;
       customerIds.push(CustomerId);
       if(UpdatedBy && UpdatedBy > 0) staffIds.push(UpdatedBy);
-      if(ProvinceId && ProvinceId > 0) ProvinceIds.push(ProvinceId);
-      if(DistrictId && DistrictId > 0) DistrictIds.push(DistrictId);
-      if(WardId && WardId > 0) WardIds.push(WardId);
       return v;
     });
     staffIds = [...new Set(staffIds)];
-    ProvinceIds = [...new Set(ProvinceIds)];
-    DistrictIds = [...new Set(DistrictIds)];
-    WardIds = [...new Set(WardIds)]; 
 
     const customerTypes = await WidgetModel.getCustomerTypes();
     const customerPhones = await CustomerModel.getPhonesByCustomerIds(customerIds);
     const customerEmails = await CustomerModel.getEmailsByCustomerIds(customerIds);
     const staffs = await WidgetModel.getStaffsByIds(staffIds);
-    const provinces = await WidgetModel.getProvincesByIds(ProvinceIds);
-    const districts = await WidgetModel.getDistrictsByIds(DistrictIds);
-    const wards = await WidgetModel.getWardsByIds(WardIds);
-  
+    
     customers.map(v => {
       const { 
         CustomerId,
@@ -260,9 +230,6 @@ module.exports = {
       v.CustomerEmail = customerEmails.filter(v => v.CustomerId == CustomerId) || null;
       v.CustomerType = customerTypes.find(v => v.CustomerTypeId == CustomerTypeId);
       v.EditBy = staffs.find(v => v.StaffId == UpdatedBy) || null;
-      v.Province = provinces.find(v => v.VnProvinceId == ProvinceId);
-      v.District = districts.find(v => v.VnDistrictId == DistrictId);
-      v.Ward = wards.find(v => v.VnWardId == WardId);
       return v;
     });
 
@@ -294,30 +261,12 @@ module.exports = {
 
     const { 
       Gender,
-      Photo,
-      ProvinceId = null,
-      DistrictId = null,
-      WardId = null, 
+      Photo
     } = customer;
-    console.log('Photo DB -> ',  Photo);
-
-    let ProvinceIds, DistrictIds, WardIds = [];
     
-    if(ProvinceId && ProvinceId > 0) ProvinceIds = [...new Set([ProvinceId])];
-    const provinces = await WidgetModel.getProvincesByIds(ProvinceIds);
-
-    if(DistrictId && DistrictId > 0) DistrictIds = [...new Set([DistrictId])];
-    const districts = await WidgetModel.getDistrictsByIds(DistrictIds);
-
-    if(WardId && WardId > 0) WardIds = [...new Set([WardId])]; 
-    const wards = await WidgetModel.getWardsByIds(WardIds);
-
     customer.Photo = CustomerModel.getPhotoUrl({ Gender, Photo, CustomerId });
     customer.CustomerPhoneNumber = await CustomerModel.getPhonesByCustomerIds([CustomerId]);
     customer.CustomerEmail = await CustomerModel.getEmailsByCustomerIds([CustomerId]);
-    customer.Province = provinces.find(v => v.VnProvinceId == ProvinceId);
-    customer.District = districts.find(v => v.VnDistrictId == DistrictId);
-    customer.Ward = wards.find(v => v.VnWardId == WardId);
     return customer;
   },
 
@@ -868,7 +817,6 @@ module.exports = {
     if(File.fieldName.search('NOOP_') > 0) return null;
 
     try {
-      console.log('path -> ', `${appPath}/assets/images/modules/customer/${CustomerId}`);
       await File.upload({
         dirname:  `${appPath}/assets/images/modules/customer/${CustomerId}`,
         saveAs : function(file, res) {
@@ -994,4 +942,3 @@ module.exports = {
     return avatar;
   }
 };
-

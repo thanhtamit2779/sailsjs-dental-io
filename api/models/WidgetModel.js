@@ -9,7 +9,6 @@ const appPath = sails.config.appPath;
 const baseUrl = sails.config.custom.baseUrl;
 
 module.exports = {
-
   getAppointmentStatus: async () => {
     const sql = `SELECT 
                   "aps"."AppointmentStatusId",
@@ -116,6 +115,7 @@ module.exports = {
   },
 
   getProvinces: async () => {
+    return null;
     const sql = `SELECT 
                   "VnProvinceId",
                   "NameVi",
@@ -128,6 +128,7 @@ module.exports = {
   },
 
   getProvincesByIds: async (ProvinceIds = []) => {
+    return null;
     if(!ProvinceIds || ProvinceIds.length === 0 ) return [];
     const whereIn = ProvinceIds.join();
     const sql = `SELECT 
@@ -143,6 +144,7 @@ module.exports = {
   },
 
   getDistrictsByProvinceId: async (VnProvinceId=1) => {
+    return null;
     const sql = `SELECT 
                   "VnDistrictId",
                   "VnProvinceId",
@@ -157,6 +159,7 @@ module.exports = {
   },
 
   getDistrictsByIds: async (DistrictIds = null) => {
+    return null;
     if(!DistrictIds || DistrictIds.length === 0) return [];
     const whereIn = DistrictIds.join();
     const sql = `SELECT 
@@ -173,6 +176,7 @@ module.exports = {
   },
 
   getWardsByDistrictId: async (VnDistrictId=1) => {
+    return null;
     const sql = `SELECT 
                   "VnDistrictId",
                   "VnWardId",
@@ -187,6 +191,7 @@ module.exports = {
   },
 
   getWardsByIds: async (WardIds = null) => {
+    return null;
     if(!WardIds || WardIds.length === 0) return [];
     const whereIn = WardIds.join();
     const sql = `SELECT 
