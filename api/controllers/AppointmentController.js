@@ -11,8 +11,8 @@ const checkTime = time => time < 10 ? `0${time}` : `${time}`;
 const appPath = sails.config.appPath;
 
 module.exports = {
-    getAppointmentsInDay: async function(req, res) {
-        const appointments =  await AppointmentModel.getAppointmentsInDay(req, res);
+    getAppointments: async function(req, res) {
+        const appointments =  await AppointmentModel.getAppointments(req);
         return res.json(appointments);
     },
 
