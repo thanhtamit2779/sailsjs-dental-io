@@ -46,22 +46,6 @@ module.exports = {
       type: 'string',
       allowNull: true    
     },
-    CountryId: {
-      type: 'number',
-      allowNull: true    
-    },
-    ProvinceId: {
-      type: 'number',
-      allowNull: true
-    },
-    DistrictId: {
-      type: 'number',
-      allowNull: true    
-    },
-    WardId: {
-      type: 'number',
-      allowNull: true    
-    },
     CreatedAt: {
       type: 'number',
       allowNull: true    
@@ -122,14 +106,10 @@ module.exports = {
 
   getCustomers: async (request) => {
     let { 
-      CustomerTypeId = 0,
       Keyword = '',
-      State = -1,
-      ProvinceId = 0,
-      DistrictId = 0,
-      WardId = 0,
       Page = 1,
-      PerPage = 10 
+      PerPage = 10,
+      State = 1 
     } = request;
 
     const perPage = parseInt(PerPage);
@@ -185,16 +165,13 @@ module.exports = {
       sql += ` AND "c"."State"=${State}`;
     }
     
-    if(CustomerTypeId > 0) {
-      sql += ` AND "c"."CustomerTypeId" = ${CustomerTypeId}`;
-    }
     sql += ` ORDER BY "c"."CustomerId" DESC`;
 
     const sqlTotalQuery = `${sqlTotal} ${sql}`;
     const sqlQuery = `${sqlSelect} ${sql} LIMIT ${perPage} OFFSET ${Offset}`;
     const execute = await sails.sendNativeQuery(sqlQuery);
-    const customers = execute.rows || [];
-    if(customers.length === 0) return [];
+    const customers = execute.rows || null;
+    if(customers.length === 0) return null;
 
     const customerIds = [];
     let staffIds = [];
@@ -209,7 +186,6 @@ module.exports = {
     });
     staffIds = [...new Set(staffIds)];
 
-    const customerTypes = await WidgetModel.getCustomerTypes();
     const customerPhones = await CustomerModel.getPhonesByCustomerIds(customerIds);
     const customerEmails = await CustomerModel.getEmailsByCustomerIds(customerIds);
     const staffs = await WidgetModel.getStaffsByIds(staffIds);
@@ -217,24 +193,19 @@ module.exports = {
     customers.map(v => {
       const { 
         CustomerId,
-        CustomerTypeId,
         Gender,
         Photo,
-        UpdatedBy = null,
-        ProvinceId = null,
-        DistrictId = null,
-        WardId = null,
+        UpdatedBy = null
       } = v;
       v.Photo = CustomerModel.getPhotoUrl({ CustomerId, Gender, Photo });
-      v.CustomerPhoneNumber = customerPhones.filter(v => v.CustomerId == CustomerId) || null;
-      v.CustomerEmail = customerEmails.filter(v => v.CustomerId == CustomerId) || null;
-      v.CustomerType = customerTypes.find(v => v.CustomerTypeId == CustomerTypeId);
-      v.EditBy = staffs.find(v => v.StaffId == UpdatedBy) || null;
+      v.CustomerPhoneNumber = customerPhones.filter(v => v.CustomerId === CustomerId) || null;
+      v.CustomerEmail = customerEmails.filter(v => v.CustomerId === CustomerId) || null;
+      v.EditBy = staffs.find(v => v.StaffId === UpdatedBy) || null;
       return v;
     });
 
     const executeTotal = await sails.sendNativeQuery(sqlTotalQuery);
-    const totalCustomer = executeTotal.rows || [];
+    const totalCustomer = executeTotal.rows || null;
     const Total = totalCustomer.length || 0;
     const customer = {
       Customers: customers,
@@ -278,7 +249,7 @@ module.exports = {
 
     // Danh mục ghi chú
     const executeNoteCategory = await sails.sendNativeQuery(`SELECT "CustomerNoteCategoryId", "Name" FROM "public"."customernotecategory" WHERE "State" = 1`);
-    const customerNoteCategories = executeNoteCategory.rows || [];
+    const customerNoteCategories = executeNoteCategory.rows || null;
 
     // Ghi chú
     let staffIds = [];
@@ -305,7 +276,7 @@ module.exports = {
         CustomerNoteCategoryId,
         AddedBy 
       } = v;
-      v.CustomerNoteCategory = customerNoteCategories.find(v => v.CustomerNoteCategoryId == CustomerNoteCategoryId) || null;
+      v.CustomerNoteCategory = customerNoteCategories.find(v => v.CustomerNoteCategoryId === CustomerNoteCategoryId) || null;
       v.AddedBy = staffs.find(v => v.StaffId === AddedBy) || null;
       return v;
     });
@@ -412,11 +383,11 @@ module.exports = {
 
     // Thuộc nhóm phản hồi nào
     const executeComplaintReasonGroups = await sails.sendNativeQuery(`SELECT * FROM "public"."complaintreasongroup" WHERE "State" = 1`);
-    const complaintReasonGroups = executeComplaintReasonGroups.rows || [];
+    const complaintReasonGroups = executeComplaintReasonGroups.rows || null;
 
     // Bộ phận phản hồi
     const executeComplaintAboutReason = await sails.sendNativeQuery(`SELECT "ComplaintAboutReasonId", "ComplaintReasonGroupId", "Reason" FROM "public"."complaintaboutreason" WHERE "State" = 1`);
-    const complaintAboutReasons = executeComplaintAboutReason.rows || [];
+    const complaintAboutReasons = executeComplaintAboutReason.rows || null;
 
     // Map dữ liệu
     complaintAboutReasons.length !== 0 && complaintAboutReasons.map(v => {
@@ -437,22 +408,22 @@ module.exports = {
   },
 
   getPhonesByCustomerIds: async (CustomerIds = []) => {
-    if(CustomerIds.length === 0) return [];
+    if(CustomerIds.length === 0) return null;
 
     const whereIn = CustomerIds.join();
     const sql = `SELECT "PhoneNumber", "CustomerId" FROM "public"."customerphonenumber" WHERE "CustomerId" IN (${whereIn}) ORDER BY "ExpiredAt" ASC`;
     const execute = await sails.sendNativeQuery(sql);
-    const result = execute.rows || [];
+    const result = execute.rows || null;
     return result;
   },
 
   getEmailsByCustomerIds: async (CustomerIds = []) => {
-    if(CustomerIds.length === 0) return [];
+    if(CustomerIds.length === 0) return null;
 
     const whereIn = CustomerIds.join();
     const sql = `SELECT * FROM "public"."customeremail" WHERE "CustomerId" IN (${whereIn})`;
     const execute = await sails.sendNativeQuery(sql);
-    const result = execute.rows || [];
+    const result = execute.rows || null;
     return result;
   },
 
@@ -550,7 +521,7 @@ module.exports = {
     const phoneExecute = await sails.sendNativeQuery(`SELECT PhoneNumber 
                                                             FROM customerphonenumber
                                                             WHERE PhoneNumber = '${PhoneNumber}' AND CustomerId = ${CustomerId}`);
-    const phone = phoneExecute.rows || [];
+    const phone = phoneExecute.rows || null;
     let isSave = 0;
     if(phone.length !== 0) {
       // Cập nhật tất cả số điện thoại hết hạn
@@ -610,7 +581,7 @@ module.exports = {
     const emailExecute = await sails.sendNativeQuery(`SELECT Email 
                                                       FROM customeremail
                                                       WHERE Email = '${Email}' AND CustomerId = ${CustomerId}`);
-    const email = emailExecute.rows || [];
+    const email = emailExecute.rows || null;
     let isSave = 0;
     if(email.length !== 0) {
       const execute = await sails.sendNativeQuery(`UPDATE customeremail
@@ -682,9 +653,6 @@ module.exports = {
     const date = new Date();
     const time = date.getTime();
     const timestamp = ~~(time/1000);
-    if(CustomerData.ProvinceId === '') CustomerData.ProvinceId = null;
-    if(CustomerData.DistrictId === '') CustomerData.DistrictId = null;
-    if(CustomerData.WardId === '') CustomerData.WardId = null;
     if(CustomerData.Birthday === '') CustomerData.Birthday = null;    
     CustomerData.CustomerCode = `NK${timestamp}`;
     CustomerData.CreatedAt = ~~(time/1000);
@@ -930,7 +898,6 @@ module.exports = {
     Photo, 
     Gender
   }) => {
-    console.log('Photo -> ', Photo);
     let avatar = (Gender === 2) ? require('util').format('%s/images/modules/customer/avatar-girl.jpg', baseUrl) : require('util').format('%s/images/modules/customer/avatar-boy.jpg', baseUrl);
     if(Photo && Photo != 'NULL') { 
       const imagePath = `${appPath}\\assets\\images\\modules\\customer\\${CustomerId}\\${Photo}`;

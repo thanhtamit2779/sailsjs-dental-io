@@ -14,7 +14,7 @@ module.exports.routes = {
   //  ║║║║╣ ╠╩╗╠═╝╠═╣║ ╦║╣ ╚═╗
   //  ╚╩╝╚═╝╚═╝╩  ╩ ╩╚═╝╚═╝╚═╝
   'GET /':  { controller: 'TestController', action:'love' },
-  'GET /appointment':  { controller: 'AppointmentController', action:'getAppointmentsInDay' },
+  'GET /appointment':  { controller: 'AppointmentController', action:'getAppointments' },
   'GET /appointment/:AppointmentId':  { controller: 'AppointmentController', action:'getAppointment' },
   'POST /appointment':  { controller: 'AppointmentController', action:'save' },
   'POST /appointment/:AppointmentId':  { controller: 'AppointmentController', action:'save' },

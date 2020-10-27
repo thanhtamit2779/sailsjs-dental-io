@@ -4,9 +4,6 @@
  * @description :: A model definition represents a database table/collection.
  * @docs        :: https://sailsjs.com/docs/concepts/models-and-orm/models
  */
-const fs = require('fs');
-const appPath = sails.config.appPath;
-
 module.exports = {
   tableName: 'customernotecategory',
   attributes: {
@@ -15,10 +12,6 @@ module.exports = {
       autoIncrement: true,
       columnName: 'CustomerNoteCategoryId'
     },
-    // CustomerNoteCategoryId: {
-    //   type: 'number',
-    //   allowNull: false    
-    // },
     Name: {
       type: 'string',
       allowNull: true    
@@ -62,7 +55,6 @@ module.exports = {
     //  ╔═╗╔═╗╔═╗╔═╗╔═╗╦╔═╗╔╦╗╦╔═╗╔╗╔╔═╗
     //  ╠═╣╚═╗╚═╗║ ║║  ║╠═╣ ║ ║║ ║║║║╚═╗
     //  ╩ ╩╚═╝╚═╝╚═╝╚═╝╩╩ ╩ ╩ ╩╚═╝╝╚╝╚═╝
-
   }
 };
 
