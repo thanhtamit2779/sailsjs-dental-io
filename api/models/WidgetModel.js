@@ -15,20 +15,10 @@ module.exports = {
                   "aps"."Name", 
                   "aps"."ConfirmMessage",
                   "aps"."Label"
-                FROM "public"."appointmentstatus" as "aps"
+                FROM "public"."AppointmentStatus" as "aps"
                 ORDER BY "aps"."Name" ASC`;
     const execute = await sails.sendNativeQuery(sql);
     const result = execute.rows || null;
-    return result;
-  },
-
-  getAppointmentStatusNotes: async (AppointmentStatusId = null) => {
-    if(!AppointmentStatusId || AppointmentStatusId < 1) return [];
-
-    const sql = `SELECT * FROM "public"."appointmentstatusnote" WHERE "AppointmentStatusId" = ${AppointmentStatusId}`;
-    const execute = await sails.sendNativeQuery(sql);
-    const result = execute.rows || null;
-    
     return result;
   },
 
@@ -36,7 +26,7 @@ module.exports = {
     const sql = `SELECT 
                   "AppointmentLabelId",
                   "Name"
-                FROM "public"."appointmentlabel" 
+                FROM "public"."AppointmentLabel" 
                 ORDER BY "Name" ASC`;
     const execute = await sails.sendNativeQuery(sql);
     const result = execute.rows || null;
@@ -48,7 +38,7 @@ module.exports = {
                   "BranchId",
                   "BranchCode",
                   "Name"
-                FROM "public"."branch" 
+                FROM "public"."Branch" 
                 ORDER BY "Name" ASC`;
     const execute = await sails.sendNativeQuery(sql);
     const result = execute.rows || null;
@@ -62,8 +52,8 @@ module.exports = {
                   "s"."FullName",
                   "s"."Photo",
                   "s"."Gender"
-                FROM "public"."doctor" as "d"
-                LEFT JOIN "public"."staff" as "s" ON "s"."StaffId" = "d"."StaffId"
+                FROM "public"."Doctor" as "d"
+                LEFT JOIN "public"."Staff" as "s" ON "s"."StaffId" = "d"."StaffId"
                 ORDER BY "s"."FullName" ASC`;
     const executeDoctor = await sails.sendNativeQuery(sql);
     const doctors = executeDoctor.rows || null;
@@ -95,7 +85,7 @@ module.exports = {
                   "FullName",
                   "Photo",
                   "Gender"
-                FROM "public"."staff"
+                FROM "public"."Staff"
                 WHERE "StaffId" IN (${whereIn})`;
     const executeStaff = await sails.sendNativeQuery(sql);
     const staffs = executeStaff.rows || null;

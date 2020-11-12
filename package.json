@@ -23,7 +23,8 @@
     "nodemon": "^2.0.2"
   },
   "scripts": {
-    "start": "node app.js --prod",
+    "start": "node app.js",
+    "dev": "nodemon app.js",
     "aws-start": "sails lift --prod",
     "test": "npm run lint && npm run custom-tests && echo 'Done.'",
     "lint": "./node_modules/eslint/bin/eslint.js . --max-warnings=0 --report-unused-disable-directives && echo '✔  Your .js files look good.'",

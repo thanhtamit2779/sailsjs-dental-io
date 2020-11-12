@@ -5,55 +5,56 @@
  * @help        :: See https://sailsjs.com/docs/concepts/actions
  */
 module.exports = {
-  getCustomers: async (req, res) => {
+
+  getPatients: async (req, res) => {
     const request = req.allParams();
-    const customers = await CustomerModel.getCustomers(request);
+    const customers = await PatientModel.getPatients(request);
     return res.json(customers);
   },
 
-  getCustomer: async (req, res) => { 
+  getPatient: async (req, res) => { 
     const { params } = req;
-    const { CustomerId = null } = params;
+    const { PatientId = null } = params;
 
-    const customer = await CustomerModel.getCustomer(CustomerId);
+    const customer = await PatientModel.getPatient(PatientId);
     return res.json(customer);
   },
 
-  getCustomerProfile: async (req, res) => {
+  getPatientProfile: async (req, res) => {
     const { params } = req;
-    const { CustomerId = null } = params;
+    const { PatientId = null } = params;
 
-    const profile = await CustomerModel.getCustomerProfile(CustomerId);
+    const profile = await PatientModel.getPatientProfile(PatientId);
     return res.json(profile);
   },
 
   checkPhone: async (req, res) => {
     const request = req.allParams() || null; 
-    const result = await CustomerModel.checkPhone(request);
+    const result = await PatientModel.checkPhone(request);
     return res.json(result);
   },
 
   checkEmail: async (req, res) => {
     const request = req.allParams() || null; 
-    const result = await CustomerModel.checkEmail(request);
+    const result = await PatientModel.checkEmail(request);
     return res.json(result);
   },
 
   saveCustomer: async (req, res) => {
-    let { CustomerId = null } = req.params;
+    let { PatientId = null } = req.params;
     const Customer = req.allParams();
     if(Object.values(Customer).length === 0) return res.json(response);
 
     // Cập nhật
-    if(CustomerId && CustomerId > 0) {
+    if(PatientId && PatientId > 0) {
       const File = req.file('Photo');
-      await CustomerModel.updatePhoto({ File, CustomerId }, async uploadFile => {
+      await PatientModel.updatePhoto({ File, PatientId }, async uploadFile => {
         const { 
           Code = false, 
           Notify = [] 
         } = uploadFile;
         if(File && Code) delete Customer.Photo;
-        const resultUpdate = await CustomerModel.updateCustomer(Customer, CustomerId);
+        const resultUpdate = await PatientModel.updateCustomer(Customer, PatientId);
         return res.json({
           ...resultUpdate,
           Notify: Notify.concat(resultUpdate.Notify)
@@ -64,11 +65,11 @@ module.exports = {
 
     // Thêm mới
     else {
-      const resultSave = await CustomerModel.saveCustomer(Customer);
-      const { Customer: { CustomerId = null } } =  resultSave;
-      if(CustomerId) {
+      const resultSave = await PatientModel.saveCustomer(Customer);
+      const { Customer: { PatientId = null } } =  resultSave;
+      if(PatientId) {
         const File = req.file('Photo');
-        await CustomerModel.updatePhoto({ File, CustomerId }, async uploadFile => {
+        await PatientModel.updatePhoto({ File, PatientId }, async uploadFile => {
           const { Notify = [] } = uploadFile;
           return res.json({
             ...resultSave,
@@ -82,8 +83,7 @@ module.exports = {
   },
 
   updateState: async (req, res) => {
-    const result = await CustomerModel.changeState(req);
+    const result = await PatientModel.changeState(req);
     return res.json(result);
   }
 };
-

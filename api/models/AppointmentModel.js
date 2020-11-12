@@ -7,7 +7,7 @@
 const checkTime = time => time < 9 ? `0${time}` : `${time}`;
 
 module.exports = {
-  tableName: 'appointment',
+  tableName: 'Appointment',
   attributes: {
     id: {
       type: 'number',
@@ -18,61 +18,50 @@ module.exports = {
       type: 'string',
       allowNull: true
     },
-    FromCustomerChannel: {
-      type: 'number',
-      allowNull: true
-    },
     AppointmentStatusId: {
       type: 'number',
     },
     AppointmentLabelId: {
       type: 'number',
     },
-    AppointmentStatusNote: {
-      type: 'string',
-      allowNull: true
-    },
-    CustomerId: {
+    PatientId: {
       type: 'number',
       allowNull: false,
       required: true
     },
     CreatedAt: {
-      type: 'number',
-      allowNull: true
+      type: 'ref',
+      columnType: 'timestamp',
     },
     CreatedBy: {
       type: 'number',
       allowNull: true
     },
     EditedAt: {
-      type: 'number',
-      allowNull: true
+      type: 'ref',
+      columnType: 'timestamp'
     },
     EditedBy: {
       type: 'number',
       allowNull: true
     },
     StartAt: {
-      type: 'number',
+      type: 'ref',
+      columnType: 'timestamp',
       allowNull: false,
       required: true
     },
     EndAt: {
-      type: 'number',
+      type: 'ref',
+      columnType: 'timestamp',
       allowNull: false,
       required: true
     },
-    AppointedTo: {
+    DoctorId: {
       type: 'number',
-      //allowNull: true,
       defaultsTo: 0,
     },
-    RelatedTo: {
-      type: 'number',
-      allowNull: true,
-    },
-    AtBranchId: {
+    BranchId: {
       type: 'number',
       allowNull: true
     }
@@ -102,32 +91,31 @@ module.exports = {
     let fromDay = `${year}-${month}-${day} 00:00:00`
     let toDay = `${year}-${month}-${day} 23:59:59`;
     if (FromDay && FromDay !== '') fromDay = `${FromDay} 00:00:00`;
-    if (ToDay && ToDay !== '') toDay = `${ToDay} 00:00:00`;
+    if (ToDay && ToDay !== '') toDay = `${ToDay} 23:59:59`;
 
     let sql = `SELECT "AppointmentId", 
-                      to_char("StartAt", 'DD-MM-YYYY') as "StartAtDay",
+                      to_char("StartAt", 'DD-MM-YYYY') as "AtDay",
                       to_char("StartAt", 'HH24:MI') as "StartAtTime", 
                       EXTRACT(HOUR FROM "StartAt") as "StartAtIndex",
                       to_char("EndAt", 'HH24:MI') as "EndAtTime",
                       "AppointmentStatusId", 
-                      "AppointedTo", 
+                      "DoctorId", 
                       "CreatedBy", 
                       to_char("CreatedAt", 'YYYY-MM-DD HH24:MI:SS') as "CreatedAt", 
                       "EditedBy", 
                       to_char("EditedAt", 'YYYY-MM-DD HH24:MI:SS') as "EditedAt", 
-                      "AtBranchId", 
-                      "AppointmentStatusNote", 
+                      "BranchId", 
                       "Note", 
-                      "CustomerId", 
+                      "PatientId", 
                       "AppointmentLabelId"         
-                FROM "public"."appointment"
+                FROM "public"."Appointment"
                 WHERE "StartAt" > '${fromDay}' AND "StartAt" < '${toDay}'`;
     if (BranchId > 0) {
-      sql += ` AND "AtBranchId" = ${BranchId}`;
+      sql += ` AND "BranchId" = ${BranchId}`;
     }
 
     if (DoctorId > 0) {
-      sql += ` AND "AppointedTo" = ${DoctorId}`;
+      sql += ` AND "DoctorId" = ${DoctorId}`;
     }
 
     if (AppointmentLabelId > 0) {
@@ -141,7 +129,7 @@ module.exports = {
     if (Keyword.length > 2) {
       // Search By
       // 1. FullName
-      // 2. CustomerCode
+      // 2. PatientCode
       // 3. PhoneNumber
       let searchBy = 1;
       if (Keyword.substr(0, 2) === 'NK') {
@@ -153,20 +141,20 @@ module.exports = {
 
       switch (searchBy) {
         case 2:
-          sql += ` AND CustomerId" IN (SELECT "CustomerId" FROM "public"."customer" WHERE "CustomerCode" LIKE '%${Keyword}%')`;
+          sql += ` AND "PatientId" IN (SELECT "PatientId" FROM "public"."Patient" WHERE "PatientCode" LIKE '%${Keyword}%')`;
           break;
 
         case 3:
-          sql += ` AND CustomerId" IN (SELECT "CustomerId" FROM "public"."customerphonenumber" WHERE "PhoneNumber" LIKE '%${Keyword}%')`;
+          sql += ` AND "PatientId" IN (SELECT "PatientId" FROM "public"."PatientPhoneNumber" WHERE "PhoneNumber" LIKE '%${Keyword}%')`;
           break;
 
         default:
-          sql += ` AND CustomerId" IN (SELECT "CustomerId" FROM "public"."customer" WHERE "FullName" LIKE '%${Keyword}%')`;
+          sql += ` AND "PatientId" IN (SELECT "PatientId" FROM "public"."Patient" WHERE "FullName" LIKE '%${Keyword}%')`;
           break;
       }
     }
 
-    sql += ` ORDER BY "AppointmentId" ASC`;
+    sql += ` ORDER BY "StartAt" ASC`;
     const execute = await sails.sendNativeQuery(sql);
     const appointments = execute.rows || null;
     return appointments;
@@ -215,7 +203,7 @@ module.exports = {
     if (Appointments.length === 0) return null;
 
     // Ids
-    const customerIds = [];
+    const patientIds = [];
     let appointmentStatusIds = [];
     let doctorIds = [];
     let branchIds = [];
@@ -230,15 +218,15 @@ module.exports = {
     Appointments.map(appointment => {
       const {
         AppointmentStatusId = null,
-        AtBranchId = null,
-        CustomerId = null,
-        AppointedTo = null,
+        BranchId = null,
+        PatientId = null,
+        DoctorId = null,
         EditedBy = null
       } = appointment;
-      if (AtBranchId && AtBranchId > 0) branchIds.push(AtBranchId);
-      if (AppointedTo && AppointedTo > 0) doctorIds.push(AppointedTo);
+      if (BranchId && BranchId > 0) branchIds.push(BranchId);
+      if (DoctorId && DoctorId > 0) doctorIds.push(DoctorId);
       if (EditedBy && EditedBy > 0) staffIds.push(EditedBy);
-      if (CustomerId) customerIds.push(CustomerId);
+      if (PatientId) patientIds.push(PatientId);
 
       if (AppointmentStatusId) appointmentStatusIds.push(AppointmentStatusId);
       if (AppointmentStatusId === 1) appointmentCancel++;
@@ -265,38 +253,36 @@ module.exports = {
     appointmentStatusIds = [...new Set(appointmentStatusIds)];
     const appointmentStatus = await WidgetModel.getAppointmentStatus();
 
-    const customers = await AppointmentModel.getCustomerByIds(customerIds);
-    const customerPhoneNumbers = await CustomerModel.getPhonesByCustomerIds(customerIds);
+    const patients = await AppointmentModel.getPatientsByIds(patientIds);
+    const patientPhoneNumbers = await PatientModel.getPhonesByPatientIds(patientIds);
 
     const appointmentTypes = await WidgetModel.getAppointmentTypes();
 
     Appointments.map(appointment => {
       const {
-        CustomerId,
+        PatientId,
         AppointmentStatusId,
-        AppointedTo,
-        AtBranchId,
+        DoctorId,
+        BranchId,
         EditedBy,
-        AppointmentLabelId,
-        StartAtIndex
+        AppointmentLabelId
       } = appointment;
 
       // Khách hàng, sđt khách hàng
-      let customer = customers.find(customer => customer.CustomerId === CustomerId) || null;
-      appointment.Customer = customer;
+      appointment.Patient = patients.find(patient => patient.PatientId === PatientId) || null;
 
       // Số điện thoại
-      const phoneNumbers = customerPhoneNumbers.filter(customer => customer.CustomerId === CustomerId) || null;
+      const phoneNumbers = patientPhoneNumbers.filter(patient => patient.PatientId === PatientId) || null;
       const PhoneNumber = [];
       if (phoneNumbers && phoneNumbers.length !== 0) {
         phoneNumbers.map(v => PhoneNumber.push(v.PhoneNumber));
       }
-      if (PhoneNumber && PhoneNumber.length !== 0) appointment.Customer.PhoneNumber = [...new Set(PhoneNumber)];
+      if (PhoneNumber && PhoneNumber.length !== 0) appointment.Patient.PhoneNumber = [...new Set(PhoneNumber)];
 
       appointment.AppointmentType = appointmentTypes.find(v => v.AppointmentLabelId === AppointmentLabelId) || null;
       appointment.AppointmentStatus = appointmentStatus.find(aps => aps.AppointmentStatusId === AppointmentStatusId) || null;
-      appointment.Branch = branchs.find(b => b.BranchId === AtBranchId) || null;
-      appointment.Doctor = doctors.find(d => d.DoctorId === AppointedTo) || null;
+      appointment.Branch = branchs.find(b => b.BranchId === BranchId) || null;
+      appointment.Doctor = doctors.find(d => d.DoctorId === DoctorId) || null;
       appointment.Edited = staffs.find(s => s.StaffId === EditedBy) || null;
       appointment.Buttons = AppointmentModel._getAppointmentActions(AppointmentStatusId, appointmentStatus);
 
@@ -326,37 +312,37 @@ module.exports = {
     }
   },
 
-  getCustomerByIds: async customerIds => {
-    if (customerIds.length === 0) return [];
-    const whereIn = customerIds.join();
+  getPatientsByIds: async patientIds => {
+    if (patientIds.length === 0) return [];
+    const whereIn = patientIds.join();
     const sql = `SELECT 
-                  "CustomerId",
+                  "PatientId",
                   "FullName", 
                   "Gender", 
                   "Birthday",
                   "Address",
                   "Photo",
-                  "CustomerCode",
+                  "PatientCode",
                   "PercentProfile"
-                FROM "public"."customer"
-                WHERE "CustomerId" IN (${whereIn})`;
+                FROM "public"."Patient"
+                WHERE "PatientId" IN (${whereIn})`;
 
-    const executeCustomers = await sails.sendNativeQuery(sql);
-    const customers = executeCustomers.rows || [];
-    customers.length !== 0 && customers.map(customer => {
+    const executePatients = await sails.sendNativeQuery(sql);
+    const patients = executePatients.rows || [];
+    patients.length !== 0 && patients.map(patient => {
       const {
-        CustomerId,
+        PatientId,
         Gender,
         Photo
-      } = customer;
-      customer.Photo = CustomerModel.getPhotoUrl({
-        CustomerId,
+      } = patient;
+      patient.Photo = PatientModel.getPhotoUrl({
+        PatientId,
         Gender,
         Photo
       });
-      return customer;
+      return patient;
     });
-    return customers;
+    return patients;
   },
 
   getAppointmentTypesByIds: async appointmentIds => {
@@ -365,7 +351,7 @@ module.exports = {
     const sql = `SELECT 
                   "AppointmentLabelId",
                   "AppointmentId"
-                FROM "public"."appointmentappointmentlabel"
+                FROM "public"."AppointmentLabel"
                 WHERE "AppointmentId" IN (${whereIn})`;
 
     const execute = await sails.sendNativeQuery(sql);
@@ -381,7 +367,7 @@ module.exports = {
                   "BranchCode",
                   "Name",
                   "Address"
-                FROM "public"."branch" 
+                FROM "public"."Branch" 
                 WHERE "BranchId" IN (${whereIn})
                 ORDER BY "Name" ASC`;
     const execute = await sails.sendNativeQuery(sql);
@@ -398,8 +384,8 @@ module.exports = {
                   "s"."FullName",
                   "s"."Photo",
                   "s"."Gender"
-                FROM "public"."doctor" as "d"
-                LEFT JOIN "public"."staff" as "s" ON "s"."StaffId" = "d"."StaffId" 
+                FROM "public"."Doctor" as "d"
+                LEFT JOIN "public"."Staff" as "s" ON "s"."StaffId" = "d"."StaffId" 
                 WHERE "d"."DoctorId" IN (${whereIn})`;
     const executeDoctor = await sails.sendNativeQuery(sql);
     const doctors = executeDoctor.rows || [];
@@ -482,12 +468,12 @@ module.exports = {
     if (!AppointmentData) return false;
 
     const {
-      CustomerId,
+      PatientId,
       StartAt
     } = AppointmentData;
     const sql = `SELECT "AppointmentId"
-                 FROM "public"."appointment"
-                 WHERE "CustomerId" = ${CustomerId}
+                 FROM "public"."Appointment"
+                 WHERE "PatientId" = ${PatientId}
                  AND "AppointmentStatusId" NOT IN (1,71) AND to_char("StartAt", 'YYYY-MM-DD') = '${StartAt}'`;
     const execute = await sails.sendNativeQuery(sql);
     const appointment = execute.rows || null;

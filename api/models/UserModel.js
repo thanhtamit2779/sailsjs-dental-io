@@ -34,11 +34,11 @@ module.exports = {
       Password = md5(Password);
       const sql = `SELECT 
                     "UserId"
-                  FROM "public"."user"
+                  FROM "public"."User"
                   WHERE "Email" = '${Email}' AND "Password" = '${Password}'
                   LIMIT 1 OFFSET 0`;
       const execute = await sails.sendNativeQuery(sql);
-      const result = execute.rows[0] || {};
+      const result = execute.rows[0] || null;
       return result;
     }
     return null;
@@ -54,7 +54,7 @@ module.exports = {
                   "Gender",
                   "Name",
                   "LastLogedIn"
-                FROM "public"."user"
+                FROM "public"."User"
                 WHERE "UserId" = ${UserId}
                 LIMIT 1 OFFSET 0`;
     const execute = await sails.sendNativeQuery(sql);
@@ -81,7 +81,7 @@ module.exports = {
     if(!UserId) return false;
     const currentDateTimestamp = new Date().getTime();
     const LastLogedIn = ~~(currentDateTimestamp/1000);
-    const sql = `UPDATE "public"."user" SET "LastLogedIn"=${LastLogedIn} WHERE "UserId"=${UserId}`;
+    const sql = `UPDATE "public"."User" SET "LastLogedIn"=${LastLogedIn} WHERE "UserId"=${UserId}`;
     return await sails.sendNativeQuery(sql);
   }
 

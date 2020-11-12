@@ -49,6 +49,6 @@ module.exports.datastores = {
     *                                                                          *
     ***************************************************************************/
     adapter: 'sails-postgresql',
-    url: 'postgres://cpzppeesjlzpqz:8cb0d03be7f7443f429578973dd117b611e1914d2bcd557e8d4fd869e4584e0e@ec2-54-237-155-151.compute-1.amazonaws.com:5432/dcn1n70o91b4mn'
+    url: 'postgres://postgres:123456@localhost:5432/_hospital'
   },
 };

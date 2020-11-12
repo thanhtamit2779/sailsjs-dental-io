@@ -1,5 +1,5 @@
 /**
- * CustomerModel.js
+ * PatientModel.js
  *
  * @description :: A model definition represents a database table/collection.
  * @docs        :: https://sailsjs.com/docs/concepts/models-and-orm/models
@@ -9,20 +9,12 @@ const appPath = sails.config.appPath;
 const baseUrl = sails.config.custom.baseUrl;
 
 module.exports = {
-  tableName: 'customer',
+  tableName: 'Patient',
   attributes: {
     id: {
       type: 'number',
       autoIncrement: true,
-      columnName: 'CustomerId'
-    },
-    CustomerIdNumber: {
-      type: 'string',
-      allowNull: true    
-    },
-    CustomerStatusId: {
-      type: 'number',
-      allowNull: true
+      columnName: 'PatientId'
     },
     FullName: {
       type: 'string',
@@ -47,39 +39,31 @@ module.exports = {
       allowNull: true    
     },
     CreatedAt: {
-      type: 'number',
-      allowNull: true    
+      type: 'ref',
+      columnType: 'timestamp' 
     },
     CreatedBy: {
       type: 'number',
       allowNull: false    
     },
     UpdatedAt: {
-      type: 'number',
-      allowNull: true    
+      type: 'ref',
+      columnType: 'timestamp'   
     },
     UpdatedBy: {
       type: 'number',
       allowNull: false    
     },
-    FromChannel: {
-      type: 'number',
-      defaultsTo: 741,        
-    },
-    CustomerTypeId: {
-      type: 'number',
-      defaultsTo: 1,    
-    },
     LastActive: {
-      type: 'number',
-      allowNull: true    
+      type: 'ref',
+      columnType: 'timestamp'   
     },
     State: {
       type: 'number',
       allowNull: false,
       defaultsTo: 1    
     },
-    CustomerCode: {
+    PatientCode: {
       type: 'string',
       allowNull: false    
     },
@@ -104,7 +88,7 @@ module.exports = {
 
   },
 
-  getCustomers: async (request) => {
+  getPatients: async (request) => {
     let { 
       Keyword = '',
       Page = 1,
@@ -116,27 +100,26 @@ module.exports = {
     const page = parseInt(Page);
     const Offset = (parseInt(page) - 1) * parseInt(perPage);
 
-    const sqlTotal =  `SELECT "c"."CustomerId" as "TotalCustomer"`;
+    const sqlTotal =  `SELECT "c"."PatientId" as "TotalPatient"`;
     const sqlSelect = `SELECT 
-                        "c"."CustomerId", 
+                        "c"."PatientId", 
                         "c"."FullName", 
                         "c"."Gender", 
                         "c"."Birthday", 
                         "c"."State",       
                         "c"."Photo", 
-                        "c"."CustomerTypeId", 
-                        "c"."CustomerCode", 
+                        "c"."PatientCode", 
                         "c"."Note",
                         "c"."Address",
                         "c"."UpdatedAt",
                         "c"."UpdatedBy",
-                        (SELECT COUNT("AppointmentId") FROM "public"."appointment" as "a" WHERE "a"."CustomerId" = "c"."CustomerId") AS "TotalAppointment"`;
-    let sql = `FROM "public"."customer" as "c" WHERE 1 = 1`;
+                        (SELECT COUNT("AppointmentId") FROM "public"."Appointment" as "a" WHERE "a"."PatientId" = "c"."PatientId")::integer AS "TotalAppointment"`;
+    let sql = `FROM "public"."Patient" as "c" WHERE 1 = 1`;
 
     if(Keyword.length > 2) {
       // Search By
       // 1. FullName
-      // 2. CustomerCode
+      // 2. PatientCode
       // 3. PhoneNumber
       let searchBy = 1;
       if(Keyword.substr(0, 2) === 'NK') {
@@ -148,11 +131,11 @@ module.exports = {
 
       switch(searchBy) {
         case 2:
-          sql += ` AND "c"."CustomerCode" LIKE '%${Keyword}%'`;
+          sql += ` AND "c"."PatientCode" LIKE '%${Keyword}%'`;
           break;
 
         case 3:
-          sql += ` AND "c"."CustomerId" IN (SELECT "CustomerId" FROM "public"."customerphonenumber" WHERE "PhoneNumber" LIKE '%${Keyword}%')`;
+          sql += ` AND "c"."PatientId" IN (SELECT "PatientId" FROM "public"."PatientPhoneNumber" WHERE "PhoneNumber" LIKE '%${Keyword}%')`;
           break;
 
         default:
@@ -165,50 +148,51 @@ module.exports = {
       sql += ` AND "c"."State"=${State}`;
     }
     
-    sql += ` ORDER BY "c"."CustomerId" DESC`;
+    sql += ` ORDER BY "c"."PatientId" DESC`;
 
     const sqlTotalQuery = `${sqlTotal} ${sql}`;
     const sqlQuery = `${sqlSelect} ${sql} LIMIT ${perPage} OFFSET ${Offset}`;
     const execute = await sails.sendNativeQuery(sqlQuery);
-    const customers = execute.rows || null;
-    if(customers.length === 0) return null;
+    const patients = execute.rows || null;
+    if(patients.length === 0) return null;
 
-    const customerIds = [];
+    const executeTotal = await sails.sendNativeQuery(sqlTotalQuery);
+    const totalPatient = executeTotal.rows || null;
+    const Total = totalPatient.length || 0;
+
+    const patientIds = [];
     let staffIds = [];
-    customers.map(v => {
+    patients.map(v => {
       const { 
-        CustomerId,
+        PatientId,
         UpdatedBy = null
       } = v;
-      customerIds.push(CustomerId);
+      patientIds.push(PatientId);
       if(UpdatedBy && UpdatedBy > 0) staffIds.push(UpdatedBy);
       return v;
     });
     staffIds = [...new Set(staffIds)];
 
-    const customerPhones = await CustomerModel.getPhonesByCustomerIds(customerIds);
-    const customerEmails = await CustomerModel.getEmailsByCustomerIds(customerIds);
+    const patientPhones = await PatientModel.getPhonesByPatientIds(patientIds);
+    const patientEmails = await PatientModel.getEmailsByPatientIds(patientIds);
     const staffs = await WidgetModel.getStaffsByIds(staffIds);
     
-    customers.map(v => {
+    patients.map(v => {
       const { 
-        CustomerId,
+        PatientId,
         Gender,
         Photo,
         UpdatedBy = null
       } = v;
-      v.Photo = CustomerModel.getPhotoUrl({ CustomerId, Gender, Photo });
-      v.CustomerPhoneNumber = customerPhones.filter(v => v.CustomerId === CustomerId) || null;
-      v.CustomerEmail = customerEmails.filter(v => v.CustomerId === CustomerId) || null;
+      v.Photo = PatientModel.getPhotoUrl({ PatientId, Gender, Photo });
+      v.PatientPhoneNumber = patientPhones.filter(v => v.PatientId === PatientId) || null;
+      v.PatientEmail = patientEmails.filter(v => v.PatientId === PatientId) || null;
       v.EditBy = staffs.find(v => v.StaffId === UpdatedBy) || null;
       return v;
     });
 
-    const executeTotal = await sails.sendNativeQuery(sqlTotalQuery);
-    const totalCustomer = executeTotal.rows || null;
-    const Total = totalCustomer.length || 0;
-    const customer = {
-      Customers: customers,
+    return {
+      Patients: patients,
       Pagination: {
         Total,
         TotalPage: Math.ceil(Total/perPage),
@@ -216,106 +200,59 @@ module.exports = {
         PerPage: perPage
       }
     };
-    return customer;
   },
 
-  getCustomer: async (CustomerId) => {
-    if(!CustomerId) return null;
+  getPatient: async (PatientId) => {
+    if(!PatientId) return null;
 
-    const customer = await CustomerModel.findOne({
-      where: { id: CustomerId }
+    const patient = await PatientModel.findOne({
+      where: { id: PatientId }
     });
-    if(!customer && !customer.id) return null;
+    if(!patient && !patient.id) return null;
 
-    customer.CustomerId = customer.id;
-    delete customer.id;
+    patient.PatientId = patient.id;
+    delete patient.id;
 
     const { 
       Gender,
       Photo
-    } = customer;
+    } = patient;
     
-    customer.Photo = CustomerModel.getPhotoUrl({ Gender, Photo, CustomerId });
-    customer.CustomerPhoneNumber = await CustomerModel.getPhonesByCustomerIds([CustomerId]);
-    customer.CustomerEmail = await CustomerModel.getEmailsByCustomerIds([CustomerId]);
-    return customer;
+    patient.Photo = PatientModel.getPhotoUrl({ Gender, Photo, PatientId });
+    patient.PatientPhoneNumber = await PatientModel.getPhonesByPatientIds([PatientId]);
+    patient.PatientEmail = await PatientModel.getEmailsByPatientIds([PatientId]);
+    return patient;
   },
 
-  getCustomerProfile: async (CustomerId) => {
-    if(!CustomerId) return null;
+  getPatientProfile: async (PatientId) => {
+    if(!PatientId) return null;
 
-    // Thông tin khách hàng
-    const Customer = await CustomerModel.getCustomer(CustomerId);
-
-    // Danh mục ghi chú
-    const executeNoteCategory = await sails.sendNativeQuery(`SELECT "CustomerNoteCategoryId", "Name" FROM "public"."customernotecategory" WHERE "State" = 1`);
-    const customerNoteCategories = executeNoteCategory.rows || null;
-
-    // Ghi chú
-    let staffIds = [];
-    const CustomerNotes = await CustomerNoteModel.find({
-      where: { CustomerId }
-    }).sort([{ AddedAt: 'DESC' }]);
-
-    CustomerNotes.length !== 0 && CustomerNotes.map(v => {
-      const { 
-        id,
-        AddedBy
-      } = v;
-      staffIds.push(AddedBy);
-      v.CustomerNoteId = id;
-      delete v.id;
-      return v;
-    });
-
-    staffIds = [... new Set(staffIds) ];
-    const staffs = await WidgetModel.getStaffsByIds(staffIds);
-    
-    CustomerNotes.length !== 0 && CustomerNotes.map(v => {
-      const { 
-        CustomerNoteCategoryId,
-        AddedBy 
-      } = v;
-      v.CustomerNoteCategory = customerNoteCategories.find(v => v.CustomerNoteCategoryId === CustomerNoteCategoryId) || null;
-      v.AddedBy = staffs.find(v => v.StaffId === AddedBy) || null;
-      return v;
-    });
-
-    // Lịch hẹn
-    const Appointments = await CustomerModel.getAppointmentsByCustomerId(CustomerId);
-
-    // Phản hồi
-    const Complaints = await CustomerModel.getComplaintsCustomerId(CustomerId);
-
-    // Mối quan hệ
-    //const CustomerRelationship = await CustomerModel.getCustomerRelationshipByCustomerId(CustomerId);
+    const Patient = await PatientModel.getPatient(PatientId);
+    const Appointments = await PatientModel.getAppointmentsByPatientId(PatientId);
 
     return {
-      Customer,
-      CustomerNotes,
-      Appointments,
-      Complaints
+      Patient,
+      Appointments
     }
   },
 
-  getAppointmentsByCustomerId: async (CustomerId = null) => {
-    if(!CustomerId) return [];
+  getAppointmentsByPatientId: async (PatientId = null) => {
+    if(!PatientId) return [];
 
     const appointments = await AppointmentModel.find({
-      where: { CustomerId },
+      where: { PatientId },
       select: [
         'StartAt', 
         'EndAt', 
         'Note', 
-        'CustomerId', 
+        'PatientId', 
         'AppointmentLabelId', 
-        'CustomerId', 
         'CreatedAt',
         'CreatedBy',
         'EditedAt',
         'EditedBy',
-        'AppointedTo',
-        'AtBranchId',
+        'DoctorId',
+        'BranchId',
         'AppointmentStatusId'
       ]}).sort([{ StartAt: 'DESC' }]);
     
@@ -326,15 +263,15 @@ module.exports = {
       const { 
         EditedBy,
         CreatedBy,
-        AppointedTo,
-        AtBranchId,
+        DoctorId,
+        BranchId,
         id
       } = v;
 
       if(EditedBy > 0) staffIds.push(EditedBy);
       if(CreatedBy > 0) staffIds.push(CreatedBy);
-      if(AppointedTo > 0) doctorIds.push(AppointedTo);
-      if(AtBranchId > 0) branchIds.push(AtBranchId);
+      if(DoctorId > 0) doctorIds.push(DoctorId);
+      if(BranchId > 0) branchIds.push(BranchId);
 
       v.AppointmentId = id;
       delete v.id;
@@ -354,16 +291,16 @@ module.exports = {
       const { 
         EditedBy,
         CreatedBy,
-        AppointedTo,
-        AtBranchId,
+        DoctorId,
+        BranchId,
         AppointmentLabelId,
         AppointmentStatusId
       } = v;
 
-      v.Editor = staffs.find(v => v.StaffId == EditedBy) || null;
-      v.Creator = staffs.find(v => v.StaffId == CreatedBy) || null;
-      v.Doctor = doctors.find(v => v.DoctorId == AppointedTo) || null;
-      v.Branch = branchs.find(v => v.BranchId == AtBranchId) || null;
+      v.Editor = staffs.find(v => v.StaffId === EditedBy) || null;
+      v.Creator = staffs.find(v => v.StaffId === CreatedBy) || null;
+      v.Doctor = doctors.find(v => v.DoctorId == DoctorId) || null;
+      v.Branch = branchs.find(v => v.BranchId == BranchId) || null;
       v.AppointmentType = appointmentTypes.find(v => v.AppointmentLabelId == AppointmentLabelId) || null;
       v.AppointmentStatus = appointmentStatus.find(aps => aps.AppointmentStatusId == AppointmentStatusId) || null;
 
@@ -373,55 +310,21 @@ module.exports = {
     return appointments;
   },
 
-  getComplaintsCustomerId: async (CustomerId = null) => {
-    if(!CustomerId) return [];
+  getPhonesByPatientIds: async (patientIds = []) => {
+    if(patientIds.length === 0) return null;
 
-    // Phản hồi
-    const complaints = await CustomerComplaintModel.find({
-      where: { CustomerId }
-    }).sort([{ ComplaintedAt: 'DESC' }]);
-
-    // Thuộc nhóm phản hồi nào
-    const executeComplaintReasonGroups = await sails.sendNativeQuery(`SELECT * FROM "public"."complaintreasongroup" WHERE "State" = 1`);
-    const complaintReasonGroups = executeComplaintReasonGroups.rows || null;
-
-    // Bộ phận phản hồi
-    const executeComplaintAboutReason = await sails.sendNativeQuery(`SELECT "ComplaintAboutReasonId", "ComplaintReasonGroupId", "Reason" FROM "public"."complaintaboutreason" WHERE "State" = 1`);
-    const complaintAboutReasons = executeComplaintAboutReason.rows || null;
-
-    // Map dữ liệu
-    complaintAboutReasons.length !== 0 && complaintAboutReasons.map(v => {
-      const { ComplaintReasonGroupId } = v;
-      v.ComplaintReasonGroup = complaintReasonGroups.find(v => v.ComplaintReasonGroupId == ComplaintReasonGroupId) || null;
-      return v;
-    });
-
-    complaints.length !== 0 && complaints.map(v => {
-      const { ComplaintAboutReasonId, CreatedBy } = v;
-      v.ComplaintAboutReason = complaintAboutReasons.find(v => v.ComplaintAboutReasonId == ComplaintAboutReasonId) || null;
-      v.CustomerComplaintId = v.id;
-      delete v.id;
-      return v;
-    });
-
-    return complaints;
-  },
-
-  getPhonesByCustomerIds: async (CustomerIds = []) => {
-    if(CustomerIds.length === 0) return null;
-
-    const whereIn = CustomerIds.join();
-    const sql = `SELECT "PhoneNumber", "CustomerId" FROM "public"."customerphonenumber" WHERE "CustomerId" IN (${whereIn}) ORDER BY "ExpiredAt" ASC`;
+    const whereIn = patientIds.join();
+    const sql = `SELECT "PhoneNumber", "PatientId" FROM "public"."PatientPhoneNumber" WHERE "PatientId" IN (${whereIn})`;
     const execute = await sails.sendNativeQuery(sql);
     const result = execute.rows || null;
     return result;
   },
 
-  getEmailsByCustomerIds: async (CustomerIds = []) => {
-    if(CustomerIds.length === 0) return null;
+  getEmailsByPatientIds: async (patientIds = []) => {
+    if(patientIds.length === 0) return null;
 
-    const whereIn = CustomerIds.join();
-    const sql = `SELECT * FROM "public"."customeremail" WHERE "CustomerId" IN (${whereIn})`;
+    const whereIn = patientIds.join();
+    const sql = `SELECT * FROM "public"."PatientEmail" WHERE "PatientId" IN (${whereIn})`;
     const execute = await sails.sendNativeQuery(sql);
     const result = execute.rows || null;
     return result;
@@ -438,9 +341,9 @@ module.exports = {
       }]
     };
 
-    const sql = `SELECT PhoneNumber 
-                 FROM customerphonenumber 
-                 WHERE PhoneNumber='${PhoneNumber}'`;
+    const sql = `SELECT "PhoneNumber" 
+                 FROM "public"."PatientPhoneNumber"
+                 WHERE "PhoneNumber"='${PhoneNumber}'`;
     const execute = await sails.sendNativeQuery(sql);
     const phone = execute.rows || null;
 
@@ -476,9 +379,9 @@ module.exports = {
       }]
     };
 
-    const sql = `SELECT Email 
-                 FROM customeremail 
-                 WHERE Email='${Email}'`;
+    const sql = `SELECT "Email" 
+                 FROM "public"."PatientEmail" 
+                 WHERE "public"."Email"='${Email}'`;
     const execute = await sails.sendNativeQuery(sql);
     const email = execute.rows || null;
 
@@ -503,8 +406,8 @@ module.exports = {
     }
   },
 
-  savePhone: async (PhoneNumber = null, CustomerId = null) => {
-    if(!PhoneNumber && !CustomerId) return {
+  savePhone: async (PhoneNumber = null, PatientId = null) => {
+    if(!PhoneNumber && !PatientId) return {
       Code: false,
       Message: 'Cập nhật số điện thoại không thành công!',
       Notify: [{
@@ -518,32 +421,32 @@ module.exports = {
     const ExpiredAt = ~~(time/1000);
     const AddedAt = ExpiredAt;
 
-    const phoneExecute = await sails.sendNativeQuery(`SELECT PhoneNumber 
-                                                            FROM customerphonenumber
-                                                            WHERE PhoneNumber = '${PhoneNumber}' AND CustomerId = ${CustomerId}`);
+    const phoneExecute = await sails.sendNativeQuery(`SELECT "PhoneNumber" 
+                                                            FROM "public"."PatientPhoneNumber"
+                                                            WHERE "PhoneNumber" = '${PhoneNumber}' AND PatientId = ${PatientId}`);
     const phone = phoneExecute.rows || null;
     let isSave = 0;
     if(phone.length !== 0) {
       // Cập nhật tất cả số điện thoại hết hạn
-      await sails.sendNativeQuery(`UPDATE customerphonenumber 
+      await sails.sendNativeQuery(`UPDATE PatientPhoneNumber 
                                   SET ExpiredAt=${ExpiredAt} 
-                                  WHERE CustomerId = ${CustomerId} AND PhoneNumber != '${PhoneNumber}'`);
+                                  WHERE PatientId = ${PatientId} AND PhoneNumber != '${PhoneNumber}'`);
 
       // Active
-      const execute = await sails.sendNativeQuery(`UPDATE customerphonenumber
+      const execute = await sails.sendNativeQuery(`UPDATE "public"."PatientPhoneNumber"
                                                         SET ExpiredAt=0
-                                                        WHERE CustomerId = ${CustomerId} AND PhoneNumber = '${PhoneNumber}'`);
+                                                        WHERE "PatientId" = ${PatientId} AND PhoneNumber = '${PhoneNumber}'`);
       isSave = execute.affectedRows || 0;
     } 
     else {
       // Kiểm tra số điện thoại
-      const checkPhone = await CustomerModel.checkPhone({ PhoneNumber });
+      const checkPhone = await PatientModel.checkPhone({ PhoneNumber });
       if(!checkPhone.Code) return {
         Code: false,
         Notify: checkPhone.Notify
       };
 
-      const sql = `INSERT INTO customerphonenumber(PhoneNumber, CustomerId, AddedAt, ExpiredAt) VALUES ('${PhoneNumber}', '${CustomerId}', '${AddedAt}', '0')`;
+      const sql = `INSERT INTO PatientPhoneNumber(PhoneNumber, PatientId, AddedAt, ExpiredAt) VALUES ('${PhoneNumber}', '${PatientId}', '${AddedAt}', '0')`;
       const execute = await sails.sendNativeQuery(sql);
       isSave = execute.affectedRows || 0;
     }    
@@ -565,8 +468,8 @@ module.exports = {
     };
   },
 
-  saveEmail: async (Email = null, CustomerId = null) => {
-    if(!Email && !CustomerId) return {
+  saveEmail: async (Email = null, PatientId = null) => {
+    if(!Email && !PatientId) return {
       Code: false,
       Message: 'Cập nhật địa chỉ email không thành công!',
       Notify: [{
@@ -579,25 +482,25 @@ module.exports = {
     const AddedAt = ~~(time/1000);
 
     const emailExecute = await sails.sendNativeQuery(`SELECT Email 
-                                                      FROM customeremail
-                                                      WHERE Email = '${Email}' AND CustomerId = ${CustomerId}`);
+                                                      FROM "public"."PatientEmail"
+                                                      WHERE Email = '${Email}' AND PatientId = ${PatientId}`);
     const email = emailExecute.rows || null;
     let isSave = 0;
     if(email.length !== 0) {
-      const execute = await sails.sendNativeQuery(`UPDATE customeremail
-                                                    SET Email='${Email}'
-                                                    WHERE CustomerId = ${CustomerId} AND Email = '${Email}'`);
+      const execute = await sails.sendNativeQuery(`UPDATE "public"."PatientEmail"
+                                                    SET "Email"='${Email}'
+                                                    WHERE "PatientId" = ${PatientId} AND Email = '${Email}'`);
       isSave = execute.affectedRows || 0;
     }
     else {
       // Kiểm tra số điện thoại
-      const checkEmail = await CustomerModel.checkEmail({ Email });
+      const checkEmail = await PatientModel.checkEmail({ Email });
       if(!checkEmail.Code) return {
         Code: false,
         Notify: checkEmail.Notify
       };
 
-      const sql = `INSERT INTO customeremail(CustomerId, Email, AddedAt, IsPrimary) VALUES ('${CustomerId}', '${Email}', '${AddedAt}', '1')`;
+      const sql = `INSERT INTO "public"."PatientEmail"(PatientId, Email, AddedAt, IsPrimary) VALUES ('${PatientId}', '${Email}', '${AddedAt}', '1')`;
       const execute = await sails.sendNativeQuery(sql);
       isSave = execute.affectedRows || 0;
     }
@@ -619,11 +522,11 @@ module.exports = {
     };
   },
 
-  saveCustomer: async (CustomerData = null) => {
+  savePatient: async (PatientData = null) => {
 
     // Không nhập đầy đủ thông tin
-    if(!CustomerData || Object.keys(CustomerData).length === 0) return {
-      Customer: null,
+    if(!PatientData || Object.keys(PatientData).length === 0) return {
+      Patient: null,
       Notify: [
         {
           Code: false,
@@ -636,11 +539,11 @@ module.exports = {
       PhoneNumber = null, 
       Email = null,
       FullName = ''
-    } = CustomerData;
+    } = PatientData;
 
     // Chưa nhập họ và tên
     if(!FullName && FullName.length === 0) return {
-      Customer: null,
+      Patient: null,
       Notify: [
         {
           Code: false,
@@ -653,15 +556,15 @@ module.exports = {
     const date = new Date();
     const time = date.getTime();
     const timestamp = ~~(time/1000);
-    if(CustomerData.Birthday === '') CustomerData.Birthday = null;    
-    CustomerData.CustomerCode = `NK${timestamp}`;
-    CustomerData.CreatedAt = ~~(time/1000);
+    if(PatientData.Birthday === '') PatientData.Birthday = null;    
+    PatientData.PatientCode = `NK${timestamp}`;
+    PatientData.CreatedAt = ~~(time/1000);
 
     // Thêm khách hàng mới
-    const saveCustomer = await CustomerModel.create(CustomerData).fetch();
-    const CustomerId = saveCustomer.id || null;
+    const savePatient = await PatientModel.create(PatientData).fetch();
+    const PatientId = savePatient.id || null;
 
-    if(CustomerId) {
+    if(PatientId) {
       const Notify = [{
         Code: true,
         Message: 'Thêm mới khách hàng thành công!'
@@ -669,7 +572,7 @@ module.exports = {
 
       // Cập nhật số điện thoại
       try {
-        const savePhone = await CustomerModel.savePhone(PhoneNumber, CustomerId);
+        const savePhone = await PatientModel.savePhone(PhoneNumber, PatientId);
         Notify.push({
           ...savePhone.Notify[0]
         }); 
@@ -678,7 +581,7 @@ module.exports = {
       }
       // Cập nhật địa chỉ email
       try {
-        const saveEmail = await CustomerModel.saveEmail(Email, CustomerId);
+        const saveEmail = await PatientModel.saveEmail(Email, PatientId);
         Notify.push({
           ...saveEmail.Notify[0]
         }); 
@@ -687,15 +590,15 @@ module.exports = {
       }
 
       // Map thông tin email, số điện thoại của 1 khách hàng
-      const Customer = await CustomerModel.getCustomer(CustomerId);
+      const Patient = await PatientModel.getPatient(PatientId);
       return {
-        Customer,
+        Patient,
         Notify
       }
     }
   
     return {
-      Customer: null,
+      Patient: null,
       Notify: [{
         Code: false,
         Message: 'Thêm mới khách hàng thất bại!'
@@ -703,9 +606,9 @@ module.exports = {
     }
   },
 
-  updateCustomer: async (CustomerData = null, CustomerId = null) => {
-    if(!CustomerData || !CustomerId) return {
-      Customer: null,
+  updatePatient: async (PatientData = null, PatientId = null) => {
+    if(!PatientData || !PatientId) return {
+      Patient: null,
       Notify: [
         {
           Code: false,
@@ -718,9 +621,9 @@ module.exports = {
       PhoneNumber = null, 
       Email = null,
       FullName = ''
-    } = CustomerData;
+    } = PatientData;
     if(!FullName && FullName.length === 0) return {
-      Customer: null,
+      Patient: null,
       Notify: [
         {
           Code: false,
@@ -729,19 +632,19 @@ module.exports = {
       ]
     };
 
-    if(PhoneNumber) delete CustomerData.PhoneNumber;
-    if(Email) delete CustomerData.Email;
+    if(PhoneNumber) delete PatientData.PhoneNumber;
+    if(Email) delete PatientData.Email;
 
     // Cập nhật thông tin khách hàng
     const date = new Date();
-    CustomerData.UpdatedAt = ~~(date.getTime()/1000);
-    const updateInfo = await CustomerModel.update({ id: CustomerId }).set(CustomerData).fetch();
-    const [ customer = null ] = updateInfo;
+    PatientData.UpdatedAt = ~~(date.getTime()/1000);
+    const updateInfo = await PatientModel.update({ id: PatientId }).set(PatientData).fetch();
+    const [ patient = null ] = updateInfo;
 
     // Cập nhật khách hàng không thành công
-    if(!customer && Object.values(customer).length === 0) {
+    if(!patient && Object.values(patient).length === 0) {
       return {
-        Customer: null,
+        Patient: null,
         Notify: [
           {
             Code: false,
@@ -755,7 +658,7 @@ module.exports = {
 
     // Cập nhật số điện thoại
     try {
-      const savePhone = await CustomerModel.savePhone(PhoneNumber, CustomerId);
+      const savePhone = await PatientModel.savePhone(PhoneNumber, PatientId);
       Notify.push({
         ...savePhone.Notify[0]
       }); 
@@ -764,7 +667,7 @@ module.exports = {
     }
     // Cập nhật địa chỉ email
     try {
-      const saveEmail = await CustomerModel.saveEmail(Email, CustomerId);
+      const saveEmail = await PatientModel.saveEmail(Email, PatientId);
       Notify.push({
         ...saveEmail.Notify[0]
       }); 
@@ -773,20 +676,20 @@ module.exports = {
     }
 
     // Map thông tin email, số điện thoại của 1 khách hàng
-    const Customer = await CustomerModel.getCustomer(CustomerId);
+    const Patient = await PatientModel.getPatient(PatientId);
     return {
-      Customer,
+      Patient,
       Notify
     }
   },
 
-  updatePhoto: async ({ File = null , CustomerId = null }, callback = null) => {
-    if(!File || !CustomerId) return null;
+  updatePhoto: async ({ File = null , PatientId = null }, callback = null) => {
+    if(!File || !PatientId) return null;
     if(File.fieldName.search('NOOP_') > 0) return null;
 
     try {
       await File.upload({
-        dirname:  `${appPath}/assets/images/modules/customer/${CustomerId}`,
+        dirname:  `${appPath}/assets/images/modules/patient/${PatientId}`,
         saveAs : function(file, res) {
           const fileName = file.filename.replace(' ', '');
           res(null, fileName);
@@ -818,7 +721,7 @@ module.exports = {
           });
 
           if(status && status === 'finished') {
-            const execute = await CustomerModel.update({ id: CustomerId }).set({Photo: filename}).fetch();
+            const execute = await PatientModel.update({ id: PatientId }).set({Photo: filename}).fetch();
             // Upload ảnh thành công
             let result = {
               Notify: [{
@@ -860,23 +763,23 @@ module.exports = {
   changeState: async (req) => {
     const request = req.allParams(); 
     const { 
-      CustomerId = null,
+      PatientId = null,
       State = 1
     } = request;
 
-    if(!CustomerId) return {
+    if(!PatientId) return {
       Status: 0,
-      Customer: null,
+      Patient: null,
       Notify: [{
         Code: false,
         Message: 'Cập nhật trạng thái khách hàng thất bại!'
       }]
     };
 
-    const Customer = await CustomerModel.update({ id: CustomerId }).set({ State }).fetch();
-    if( Object.values(Customer).length !== 0) return {
+    const Patient = await PatientModel.update({ id: PatientId }).set({ State }).fetch();
+    if( Object.values(Patient).length !== 0) return {
       Status: 1,
-      Customer,
+      Patient,
       Notify: [{
         Code: true,
         Message: 'Cập nhật trạng thái khách hàng thành công'
@@ -885,7 +788,7 @@ module.exports = {
 
     return {
       Status: 0,
-      Customer: null,
+      Patient: null,
       Notify: [{
         Code: false,
         Message: 'Cập nhật trạng thái khách hàng thất bại!'
@@ -894,16 +797,15 @@ module.exports = {
   },
 
   getPhotoUrl: ({ 
-    CustomerId, 
+    PatientId, 
     Photo, 
     Gender
   }) => {
-    let avatar = (Gender === 2) ? require('util').format('%s/images/modules/customer/avatar-girl.jpg', baseUrl) : require('util').format('%s/images/modules/customer/avatar-boy.jpg', baseUrl);
+    let avatar = (Gender === 2) ? require('util').format('%s/images/modules/patient/avatar-girl.jpg', baseUrl) : require('util').format('%s/images/modules/patient/avatar-boy.jpg', baseUrl);
     if(Photo && Photo != 'NULL') { 
-      const imagePath = `${appPath}\\assets\\images\\modules\\customer\\${CustomerId}\\${Photo}`;
+      const imagePath = `${appPath}\\assets\\images\\modules\\patient\\${PatientId}\\${Photo}`;
       if(fs.existsSync(imagePath)) { 
-        avatar = require('util').format('%s/images/modules/customer/%s/%s', baseUrl, CustomerId, Photo);
-        console.log('imageUrl -> ', avatar);
+        avatar = require('util').format('%s/images/modules/patient/%s/%s', baseUrl, PatientId, Photo);
       }
     }
     return avatar;
